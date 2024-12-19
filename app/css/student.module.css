@@ -1,0 +1,143 @@
+.text {
+    /* UI Properties */
+    font: var(--unnamed-font-style-normal) normal var(--unnamed-font-weight-bold) var(--unnamed-font-size-24)/var(--unnamed-line-spacing-29) var(--unnamed-font-family-roboto);
+    letter-spacing: var(--unnamed-character-spacing-0-79);
+    color: var(--unnamed-color-1a1a1a);
+    text-align: left;
+    font: normal normal bold 24px/29px Roboto;
+    letter-spacing: 0.79px;
+    color: #1A1A1A;
+    opacity: 1;
+}
+
+.p {
+    /* UI Properties */
+    font: var(--unnamed-font-style-normal) normal var(--unnamed-font-weight-normal) var(--unnamed-font-size-18)/var(--unnamed-line-spacing-22) var(--unnamed-font-family-roboto);
+    letter-spacing: var(--unnamed-character-spacing-0-59);
+    color: var(--unnamed-color-1a1a1a);
+    text-align: left;
+    font: normal normal normal 15px/22px Roboto;
+    letter-spacing: 0.59px;
+    color: #1A1A1A;
+    opacity: 1;
+}
+
+.input_search {
+    /* Layout Properties */
+    top: 149px;
+    left: 889px;
+    width: 151px;
+    height: 45px;
+    /* UI Properties */
+    background: var(--unnamed-color-ffffff) 0% 0% no-repeat padding-box;
+    border: 1.5px solid var(--unnamed-color-c7c5c5);
+    background: #FFFFFF 0% 0% no-repeat padding-box;
+    border: 2px solid #C7C5C5;
+    border-radius: 9px;
+    opacity: 1;
+    /* UI Properties */
+    font: var(--unnamed-font-style-normal) normal var(--unnamed-font-weight-normal) var(--unnamed-font-size-16)/var(--unnamed-line-spacing-19) var(--unnamed-font-family-roboto);
+    letter-spacing: var(--unnamed-character-spacing-0-53);
+    color: var(--unnamed-color-c7c5c5);
+    text-align: left;
+    font: normal normal normal 16px/19px Roboto;
+    letter-spacing: 0.53px;
+    color: #C7C5C5;
+    opacity: 1;
+}
+
+.btn_filter {
+    /* Layout Properties */
+    top: 149px;
+    left: 1056px;
+    width: 114px;
+    height: 45px;
+    /* UI Properties */
+    background: var(--unnamed-color-ffffff) 0% 0% no-repeat padding-box;
+    border: 1.5px solid var(--unnamed-color-808080);
+    background: #FFFFFF 0% 0% no-repeat padding-box;
+    border: 2px solid #808080;
+    border-radius: 9px;
+    opacity: 1;
+    /* UI Properties */
+    font: var(--unnamed-font-style-normal) normal var(--unnamed-font-weight-normal) var(--unnamed-font-size-16)/var(--unnamed-line-spacing-19) var(--unnamed-font-family-roboto);
+    letter-spacing: var(--unnamed-character-spacing-0-53);
+    color: var(--unnamed-color-707070);
+    text-align: center;
+    font: normal normal normal 16px/19px Roboto;
+    letter-spacing: 0.53px;
+    color: #707070;
+    opacity: 1;
+}
+
+.btn_add {
+    /* Layout Properties */
+    top: 149px;
+    left: 1186px;
+    width: 127px;
+    height: 45px;
+    /* UI Properties */
+    background: var(--unnamed-color-ffffff) 0% 0% no-repeat padding-box;
+    border: 1.5px solid var(--unnamed-color-808080);
+    background: #FFFFFF 0% 0% no-repeat padding-box;
+    border: 2px solid #808080;
+    border-radius: 9px;
+    opacity: 1;
+    /* UI Properties */
+    font: var(--unnamed-font-style-normal) normal var(--unnamed-font-weight-normal) var(--unnamed-font-size-16)/var(--unnamed-line-spacing-19) var(--unnamed-font-family-roboto);
+    letter-spacing: var(--unnamed-character-spacing-0-53);
+    color: var(--unnamed-color-707070);
+    text-align: center;
+    font: normal normal normal 16px/19px Roboto;
+    letter-spacing: 0.53px;
+    color: #707070;
+    opacity: 1;
+}
+
+.btn_addList {
+    /* Layout Properties */
+    top: 149px;
+    left: 1329px;
+    width: 204px;
+    height: 45px;
+    /* UI Properties */
+    background: var(--unnamed-color-ffffff) 0% 0% no-repeat padding-box;
+    border: 1.5px solid var(--unnamed-color-808080);
+    background: #FFFFFF 0% 0% no-repeat padding-box;
+    border: 2px solid #808080;
+    border-radius: 9px;
+    opacity: 1;
+    /* UI Properties */
+    font: var(--unnamed-font-style-normal) normal var(--unnamed-font-weight-normal) var(--unnamed-font-size-16)/var(--unnamed-line-spacing-19) var(--unnamed-font-family-roboto);
+    letter-spacing: var(--unnamed-character-spacing-0-53);
+    color: var(--unnamed-color-808080);
+    text-align: center;
+    font: normal normal normal 16px/19px Roboto;
+    letter-spacing: 0.53px;
+    color: #808080;
+    opacity: 1;
+}
+
+.Header {
+    /* UI Properties */
+    font: var(--unnamed-font-style-normal) normal var(--unnamed-font-weight-bold) var(--unnamed-font-size-18)/var(--unnamed-line-spacing-22) var(--unnamed-font-family-roboto);
+    letter-spacing: var(--unnamed-character-spacing-0-59);
+    color: var(--unnamed-color-262626);
+    text-align: left;
+    font: normal normal bold 18px/22px Roboto;
+    letter-spacing: 0.59px;
+    color: #262626;
+    opacity: 1;
+}
+
+.text_student {
+    /* UI Properties */
+    font: var(--unnamed-font-style-normal) normal var(--unnamed-font-weight-normal) var(--unnamed-font-size-18)/var(--unnamed-line-spacing-22) var(--unnamed-font-family-roboto);
+    letter-spacing: var(--unnamed-character-spacing-0-59);
+    color: var(--unnamed-color-262626);
+    text-align: left;
+    font: normal normal normal 18px/22px Roboto;
+    letter-spacing: 0.59px;
+    color: #262626;
+    opacity: 1;
+}
