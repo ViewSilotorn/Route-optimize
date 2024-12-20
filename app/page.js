@@ -14,7 +14,7 @@ export default function Home() {
   return (
     // <div className={styles.root_login}>
     //   <main className={styles.card}>
-    <div className="flex min-h-screen  flex-col items-center justify-center px-4 py-8 lg:px-6">
+    <div className="flex min-h-screen flex-col items-center justify-center px-4 py-5 lg:px-6">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
         <div className='flex justify-center'>
           <Image
@@ -56,8 +56,8 @@ export default function Home() {
               <label htmlFor="password" className={styles.text_password}>
                 Password
               </label>
-              <div className="text-sm ">
-                <Link href="/forGotPass" className={styles.text_fgpass}>
+              <div className={styles.text_fgpass}>
+                <Link href="/pages/forGotPass">
                   Forgot password?
                 </Link>
               </div>
@@ -92,7 +92,7 @@ export default function Home() {
           </div>
 
           <div>
-            <button type="submit" onClick={() => router.push('/map')} className={styles.btn_login} >Login</button>
+            <button type="submit" onClick={() => router.push('/pages/map')} className={styles.btn_login} >Login</button>
           </div>
           <div className={styles.hr_line}>
             <span className='mt-10'>Or</span>

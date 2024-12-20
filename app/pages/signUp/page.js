@@ -2,7 +2,7 @@
 'use client'
 import Link from 'next/link';
 import { useRouter } from 'next/navigation'
-import styles from '../../css/login.module.css'
+import styles from './signup.module.css'
 import { useState } from 'react';
 import Form from 'next/form'
 import Image from 'next/image';

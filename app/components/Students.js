@@ -6,6 +6,7 @@ import St from '../css/student.module.css';
 import Link from 'next/link';
 import Sidebar from "./sidebar";
 import Layout from "./Layout";
+import AddStudent from "./AddStudent";
 
 export default function Students() {
     const [students, setStudents] = useState([]); //เก็บข้อมูลนักเรียน
@@ -15,7 +16,10 @@ export default function Students() {
     const [addListStudent, setAddListStudent] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10; // Number of items per page
+    const [isAddStudentOpen, setIsAddStudentOpen] = useState(false);
 
+    const openAddStudent = () => setIsAddStudentOpen(true);
+    const closeAddStudent = () => setIsAddStudentOpen(false);
 
     // Calculate total pages
     const totalPages = Math.ceil(students.length / itemsPerPage);
@@ -118,9 +122,12 @@ export default function Students() {
                                 </button>
                             </div>
                             <div>
-                                <button onClick={() => toggleAddStudent()} className={St.btn_add}>
+                                <button onClick={() => openAddStudent()} className={St.btn_add}>
                                     Add Student
                                 </button>
+
+                                <AddStudent isOpen={isAddStudentOpen} onClose={closeAddStudent}>
+                                </AddStudent>
 
                                 {/* {addStudent && (
                                     <Sidebar addStudent={addStudent}

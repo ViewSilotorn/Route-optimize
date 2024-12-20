@@ -5,9 +5,10 @@ import styles from '../css/nav.module.css';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import popup from '../css/success.module.css';
-import style from '../css/repass.module.css';
+import style from '../css/forgotpass.module.css';
 import Image from 'next/image';
 import Logo from '../Image/LogoHeader.png'
+import Modal from "../components/Modal";
 
 export default function Navbar({ onSelectMenu }) {
     const menus = [
@@ -21,6 +22,11 @@ export default function Navbar({ onSelectMenu }) {
     const [showPopup, setShowPopup] = useState(false);
     const [showPopupReset, setShowPopupReset] = useState(false);
     const [isOpenMenu, setIsOpenMenu] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const openModal = () => setIsModalOpen(true);
+    const closeModal = () => setIsModalOpen(false);
+
 
     const handleResetSubmit = () => {
         // e.preventDefault();
@@ -38,7 +44,7 @@ export default function Navbar({ onSelectMenu }) {
 
     return (
         <header className={styles.navbar}>
-            <div className="mx-auto flex h-16 max-w-screen-xl items-center gap-8 px-4 sm:px-6 lg:px-8">
+            <div className="mx-auto flex h-16 max-w-screen items-center gap-8 px-4 sm:px-6 lg:px-8">
                 <a className="block text-teal-600" href="#">
                     <span className="sr-only">Home</span>
                     <Image
@@ -48,14 +54,12 @@ export default function Navbar({ onSelectMenu }) {
                         alt="Picture of the author"
                     />
                 </a>
-
                 <div className="flex flex-1 items-center justify-end md:justify-between">
                     <nav className="hidden md:block">
                         <ul className="flex items-center gap-6 text-sm">
                             {menus.map((menu, index) => (
                                 <div key={index} className="flex space-x-6 ml-5">
                                     <Link href={menu.href} onClick={(e) => { e.preventDefault(); onSelectMenu(menu.name) }} className={styles.text}>{menu.name}</Link>
-
                                 </div>
                             ))}
                         </ul>
@@ -80,7 +84,7 @@ export default function Navbar({ onSelectMenu }) {
 
                     <div className="flex items-center gap-4">
                         <div className="sm:flex sm:gap-4">
-                            <button onClick={toggleDropdown} className='p-2'>
+                            <button onClick={toggleDropdown} className='flex justify-end'>
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="#00000029" className="size-10">
                                     <path fillRule="evenodd" d="M15 8A7 7 0 1 1 1 8a7 7 0 0 1 14 0Zm-5-2a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM8 9c-1.825 0-3.422.977-4.295 2.437A5.49 5.49 0 0 0 8 13.5a5.49 5.49 0 0 0 4.294-2.063A4.997 4.997 0 0 0 8 9Z" clipRule="evenodd" />
                                 </svg>
@@ -89,9 +93,10 @@ export default function Navbar({ onSelectMenu }) {
                     </div>
                 </div>
             </div>
-            {/* dropdown */}
+
+            {/* dropdown profile */}
             {isOpen && (
-                <div className='absolute right-1 mt-2 w-64 h-56 bg-white border rounded shadow-lg'>                                
+                <div className='absolute right-1 mt-2 w-64 h-56 bg-white border rounded shadow-lg'>
                     <div className='py-1 flex flex-col items-center justify-center p-4'>
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="#00000029" className="size-20">
                             <path fillRule="evenodd" d="M15 8A7 7 0 1 1 1 8a7 7 0 0 1 14 0Zm-5-2a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM8 9c-1.825 0-3.422.977-4.295 2.437A5.49 5.49 0 0 0 8 13.5a5.49 5.49 0 0 0 4.294-2.063A4.997 4.997 0 0 0 8 9Z" clipRule="evenodd" />
@@ -144,11 +149,12 @@ export default function Navbar({ onSelectMenu }) {
                                             />
                                         </div>
                                     </div>
-
                                     <div>
-                                        <button onClick={() => handleResetSubmit()} className={style.btn}>Submit</button>
+                                        <button onClick={openModal} className={style.btn}>Submit</button>
                                     </div>
                                 </Form>
+                                <Modal isOpen={isModalOpen} onClose={closeModal}>
+                                </Modal>
                                 <div className='mt-24'>
                                     <Link href="#" onClick={() => setShowPopupReset(false)} className={styles.link}>
                                         <div className='flex'>
@@ -156,7 +162,7 @@ export default function Navbar({ onSelectMenu }) {
                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
                                             </svg>
                                             <div className='ml-2'>
-                                                Back
+                                                Back to log in
                                             </div>
                                         </div>
                                     </Link>
@@ -164,40 +170,6 @@ export default function Navbar({ onSelectMenu }) {
                             </div>
                         </div>
                     </main >
-                </div>
-            )}
-
-            {/* Popup sucess */}
-            {showPopup && (
-                <div className={`${styles.root_login} fixed inset-0  bg-black bg-opacity-50 z-50`}>
-                    <main className={popup.card}>
-                        <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
-                            <div className="flex justify-center items-center mb-6 mt-5">
-                                <div className="bg-green-500 rounded-full flex items-center justify-center">
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        strokeWidth={2}
-                                        stroke="white"
-                                        className={`${popup.icon} w-8 h-8`}
-                                    >
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                    </svg>
-                                </div>
-                            </div>
-                            <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-                                <h2 className={popup.title}>
-                                    Successfully reset
-                                </h2>
-                                <div className={popup.p}>
-                                    can now log in with your new password.
-                                </div>
-
-                                <button type="button" onClick={() => setShowPopup(false)} className={`${popup.btn} mt-5`}>Back</button>
-                            </div>
-                        </div>
-                    </main>
                 </div>
             )}
 

@@ -9,6 +9,7 @@ import Link from 'next/link';
 import HomeToSchools from "./HomeToSchools";
 import BusStop from "./BusStop";
 import { StudentService } from "../services/studentService";
+import Modal from "./Modal";
 
 export default function Sidebar({ selectedMenu }) {
     const [students, setStudents] = useState([]);
@@ -19,7 +20,10 @@ export default function Sidebar({ selectedMenu }) {
     const [addListStudent, setAddListStudent] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10; // Number of items per page
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
+    const openModal = () => setIsModalOpen(true);
+    const closeModal = () => setIsModalOpen(false);
     // Calculate total pages
     const totalPages = Math.ceil(students.length / itemsPerPage);
 
@@ -106,13 +110,7 @@ export default function Sidebar({ selectedMenu }) {
                         <header className="bg-white">
                             <div className="mx-auto max-w-screen-xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
                                 <div className="flex flex-col  gap-28 md:flex-row md:items-center md:justify-between">
-                                    <div>
-                                        <h1 className={St.text}>Students</h1>
-
-                                        <p className={`${St.p} mt-1.5`}>
-                                            This page provides a detailed list of all students in your account.
-                                        </p>
-                                    </div>
+                                    import Link from 'next/link';
                                     <div className="flex items-center gap-3 mt-2">
                                         <div className="relative">
                                             <label htmlFor="Search" className="sr-only"> Search </label>
@@ -183,7 +181,7 @@ export default function Sidebar({ selectedMenu }) {
                                                 <td className="whitespace-nowrap px-4 py-2">{student.longitude}</td>
                                                 <td className="whitespace-nowrap px-4 py-2">
                                                     <div className="flex space-x-3">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#007BFF" className="size-6">
+                                                        <svg onClick={openModal} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#007BFF" className="size-6">
                                                             <path d="M21.731 2.269a2.625 2.625 0 0 0-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 0 0 0-3.712ZM19.513 8.199l-3.712-3.712-8.4 8.4a5.25 5.25 0 0 0-1.32 2.214l-.8 2.685a.75.75 0 0 0 .933.933l2.685-.8a5.25 5.25 0 0 0 2.214-1.32l8.4-8.4Z" />
                                                             <path d="M5.25 5.25a3 3 0 0 0-3 3v10.5a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3V13.5a.75.75 0 0 0-1.5 0v5.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5V8.25a1.5 1.5 0 0 1 1.5-1.5h5.25a.75.75 0 0 0 0-1.5H5.25Z" />
                                                         </svg>
@@ -264,8 +262,8 @@ export default function Sidebar({ selectedMenu }) {
 
     return (
         <div className="relative">
-            <div className={`fixed overflow-y-scroll top-0 bottom-0 left-0 bg-white shadow-lg transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "-translate-x-full"
-                } w-[auto]`}>
+            <div className={`fixed top-0 left-0 h-full overflow-y-scroll bg-white shadow-lg transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "-translate-x-full"
+                } w-auto`}>
                 {/* <div className="overflow-y-scroll ml-5 mt-28 mr-5"> */}
                 <div className=" ml-5 mt-28 mr-5">
                     <div>
@@ -274,10 +272,13 @@ export default function Sidebar({ selectedMenu }) {
                     <div>
                     </div>
                 </div>
-            </div>  
+            </div>
 
-            <button onClick={toggleSidebar} className={`fixed top-1/2 -translate-y-1/2 z-50 bg-white border border-gray-300 shadow-md p-5 rounded-full transition-all duration-300 ${isOpen ? "right-[0]" : "right-2"
-                }`}>
+            <button
+                onClick={toggleSidebar}
+                className={`fixed top-1/2 -translate-y-1/2 left-0 z-50 bg-white border border-gray-300 shadow-md p-3 rounded-full transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-[auto]" : "translate-x-0"
+                    }`}
+            >
                 {isOpen ? (
                     <FaChevronLeft className="text-gray-700" />) : (
                     <FaChevronRight />
@@ -393,8 +394,6 @@ export default function Sidebar({ selectedMenu }) {
                                 <div className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-gray-400 rounded-lg">
                                     <div
                                         className="flex flex-col items-center justify-center"
-                                    // onDrop={handleDrop}
-                                    // onDragOver={handleDragOver}
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-16 h-16 text-blue-600">
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15M9 12l3 3m0 0 3-3m-3 3V2.25" />

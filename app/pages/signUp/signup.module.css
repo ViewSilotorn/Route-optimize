@@ -89,9 +89,9 @@
     border: 1px solid #707070;
     border-radius: 7px;
     opacity: 1;
-    width: 100%;
     outline: none;
     padding: 3%;
+    width: 100%;
 }
 
 .input_password:focus {
@@ -108,21 +108,6 @@
     letter-spacing: 0.59px;
     color: #B3B3B3;
     padding-top: 2%;
-    opacity: 1;
-}
-
-.text_fgpass {
-    /* UI Properties */
-    text-decoration: var(--unnamed-decoration-underline);
-    font: var(--unnamed-font-style-normal) normal var(--unnamed-font-weight-normal) var(--unnamed-font-size-18)/var(--unnamed-line-spacing-24) var(--unnamed-font-family-roboto);
-    letter-spacing: var(--unnamed-character-spacing-0-59);
-    color: var(--unnamed-color-007bff);
-    text-align: center;
-    text-decoration: underline;
-    font: normal normal normal 16px/20px Roboto;
-    letter-spacing: 0.59px;
-    color: #007BFF;
-    padding-top: 5%;
     opacity: 1;
 }
 
