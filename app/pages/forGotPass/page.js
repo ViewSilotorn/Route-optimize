@@ -1,24 +1,48 @@
 //ForGotPassword Page
 'use client'
-import style from '../../css/forgotpass.module.css';
+import style from './forgotpass.module.css';
 import styles from '../../css/login.module.css';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import Form from 'next/form'
 import Modal from "../../components/Modal";
+import { getAuth, sendPasswordResetEmail } from "firebase/auth";
+import app from "../../../config";
+
 
 export default function ForgotPassword() {
     const router = useRouter();
-    const [showPopup, setShowPopup] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const auth = getAuth(app);
+    const [user, setUser] = useState(null);
+    const [emailForPasswordReset, setEmailForPasswordReset] = useState(""); 
 
     const openModal = () => setIsModalOpen(true);
     const closeModal = () => setIsModalOpen(false);
 
-    const handleShowPopup = () => {
-        setShowPopup(true);
+    const handlePasswordResetRequest = async (e) => {
+        e.preventDefault();
+        console.log("email");
+
+        if (!emailForPasswordReset) {
+            alert("Please enter your email address.");
+            console.log(emailForPasswordReset);
+
+            return;
+        }
+
+        try {
+            await sendPasswordResetEmail(auth, emailForPasswordReset);
+            // alert("Password reset email sent! Please check your inbox.");
+            openModal(true)
+            // setShowPopupReset(false); // Close the modal after sending the reset email
+        } catch (error) {
+            alert("Error sending password reset email: " + error.message);
+        }
+
     };
+
     return (
         <div className="flex min-h-screen flex-col items-center justify-center px-4 py-8 lg:px-6">
             <div className="sm:mx-auto sm:w-full sm:max-w-sm">
@@ -30,7 +54,7 @@ export default function ForgotPassword() {
                 </div>
             </div>
             <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-sm">
-                <Form action="#" className="space-y-6">
+                <Form onSubmit={handlePasswordResetRequest} className="space-y-6">
                     <div className={style.text_email}>
                         <label htmlFor="email">
                             Email
@@ -41,6 +65,8 @@ export default function ForgotPassword() {
                                 name="email"
                                 type="email"
                                 placeholder="Enter your email"
+                                value={emailForPasswordReset}
+                                onChange={(e) => setEmailForPasswordReset(e.target.value)}
                                 required
                                 autoComplete="email"
                                 className={style.input_email}
@@ -49,7 +75,7 @@ export default function ForgotPassword() {
                     </div>
 
                     <div>
-                        <button onClick={openModal} className={style.btn}>Submit</button>
+                        <button type="submit" className={style.btn}>Submit</button>
                     </div>
                 </Form>
                 <div className='mt-48'>

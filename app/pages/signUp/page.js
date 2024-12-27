@@ -7,11 +7,65 @@ import { useState } from 'react';
 import Form from 'next/form'
 import Image from 'next/image';
 import Logo from './../../Image/Logo.png'
+import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
+import app from "../../../config";
 
 export default function SignUp() {
     const router = useRouter()
     const [showPassword, setShowPassword] = useState(false);
     const [showFGPassword, setShowFGPassword] = useState(false);
+
+    const auth = getAuth(app);
+    const [formData, setFormData] = useState({
+      email: "",
+      password: "",
+      confirmPassword: "",
+    });
+    const [message, setMessage] = useState("");
+    const [loading, setLoading] = useState(false);
+  
+    const handleInputChange = (e) => {
+      setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+  
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+  
+      if (formData.password !== formData.confirmPassword) {
+        alert("Passwords do not match!");
+        return;
+      }
+  
+      setLoading(true);
+      setMessage("");
+  
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+        const user = userCredential.user;
+  
+        await sendEmailVerification(user);
+  
+        localStorage.setItem(
+          "registrationData",
+          JSON.stringify({
+            email: formData.email,
+            password: formData.password,
+          })
+        );
+  
+        // setMessage("Registration successful! Please check your email for verification.");
+        alert("Registration successful! Please check your email for verification.");
+        setLoading(false);
+        router.push("/");
+  
+        // Uncomment the following line if you want to redirect after signup.
+        // router.push("/home");
+      } catch (error) {
+        setLoading(false);
+        alert("มีบัญชีอยู่แล้ว");
+        
+      }
+    };
     return (
         // <div className={styles.root_signUp}>
         //     <main className={styles.card}>
@@ -33,7 +87,7 @@ export default function SignUp() {
                 </div>
             </div>
             <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-sm">
-                <Form action="#" className="space-y-6">
+                <Form onSubmit={handleSubmit} className="space-y-6">
                     <div className={styles.text_email}>
                         <label htmlFor="email">
                             Work email
@@ -46,6 +100,8 @@ export default function SignUp() {
                                 placeholder="Enter your Email"
                                 required
                                 autoComplete="email"
+                                value={formData.email}
+                                onChange={handleInputChange}
                                 className={styles.input_email}
                             />
                         </div>
@@ -59,9 +115,12 @@ export default function SignUp() {
                             <input
                                 id="password"
                                 name="password"
-                                type={showPassword ? "text" : "password"}
+                                type="password"
                                 placeholder="Enter your password"
                                 required
+                                autoComplete="new-password"
+                                value={formData.password}
+                                onChange={handleInputChange}
                                 className={styles.input_password}
                             />
                             <button type='button' onClick={() => setShowPassword(!showPassword)}
@@ -89,14 +148,16 @@ export default function SignUp() {
                         </label>
                         <div className={`${styles.input_placeholder_password} relative`}>
                             <input
-                                id="password"
-                                name="password"
-                                type={showFGPassword ? "text" : "password"}
-                                placeholder="Enter your password"
-                                required
+                                 id="confirmPassword"
+                                 name="confirmPassword"
+                                 type="mew-password"
+                                 placeholder="Confirm Password"
+                                 required
+                                 value={formData.confirmPassword}
+                                 onChange={handleInputChange}
                                 className={styles.input_password}
                             />
-                            <button type='button' onClick={() => setShowFGPassword(!showFGPassword)}
+                            <button  type="submit" onClick={() => setShowFGPassword(!showFGPassword)}
                                 className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 focus:outline-none">
                                 {showFGPassword ? (
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
@@ -139,7 +200,7 @@ export default function SignUp() {
                 </div>
                 <div className={styles.text_account}>
                     Already have an account? <Link href="/" className={styles.textaccount}>
-                        Login
+                        Login account
                     </Link>
                 </div>
             </div>

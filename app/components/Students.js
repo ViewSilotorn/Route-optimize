@@ -53,7 +53,7 @@ export default function Students() {
                 // กำหนด Token ที่จะส่งใน header
                 const token = process.env.NEXT_PUBLIC_TOKEN;  // แทนที่ด้วย token ที่ถูกต้อง
 
-                const res = await fetch('http://localhost:3000/api/students', {
+                const res = await fetch('http://192.168.3.246:8080/api/students', {
                     method: 'GET',  // วิธีการเรียก API
                     headers: {
                         'Authorization': `Bearer ${token}`,  // ส่ง token ใน header
@@ -126,8 +126,8 @@ export default function Students() {
                                     Add Student
                                 </button>
 
-                                <AddStudent isOpen={isAddStudentOpen} onClose={closeAddStudent}>
-                                </AddStudent>
+                                {/* <AddStudent isOpen={isAddStudentOpen} onClose={closeAddStudent}>
+                                </AddStudent> */}
 
                                 {/* {addStudent && (
                                     <Sidebar addStudent={addStudent}

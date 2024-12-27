@@ -1,17 +1,3 @@
-.root_login {
-    display: grid;
-    place-items: center;
-    gap: 4rem;
-    padding: 2rem 2rem 5rem;
-    position: fixed;
-    inset: 0;
-    /* Covers the entire screen */
-    background: rgba(0, 0, 0, 0.5);
-    /* Semi-transparent background */
-    z-index: 50;
-    /* Ensure it overlays other content */
-}
-
 .card {
     /* UI Properties */
     background: var(--unnamed-color-ffffff) 0% 0% no-repeat padding-box;
@@ -20,16 +6,18 @@
     border-radius: 17px;
     opacity: 1;
     width: 100%;
-    width: 500px;
-    height: 449px;
+    top: 303px;
+    left: 703px;
+    width: 515px;
+    height: 474px;
 }
 
 .title {
     /* UI Properties */
-    font: var(--unnamed-font-style-normal) normal var(--unnamed-font-weight-bold) 28px/34px var(--unnamed-font-family-roboto);
+    font: var(--unnamed-font-style-normal) normal var(--unnamed-font-weight-bold) 28px/37px var(--unnamed-font-family-roboto);
     color: var(--unnamed-color-1a1a1a);
     text-align: center;
-    font: normal normal bold 28px/34px Roboto;
+    font: normal normal bold 28px/37px Roboto;
     letter-spacing: 0.84px;
     color: #1A1A1A;
     opacity: 1;
@@ -37,13 +25,12 @@
 
 .p {
     /* UI Properties */
-    font: var(--unnamed-font-style-normal) normal var(--unnamed-font-weight-normal) var(--unnamed-font-size-16)/var(--unnamed-line-spacing-19) var(--unnamed-font-family-roboto);
-    letter-spacing: var(--unnamed-character-spacing-0-53);
-    color: var(--unnamed-color-000000);
+    font: var(--unnamed-font-style-normal) normal var(--unnamed-font-weight-normal) var(--unnamed-font-size-16)/var(--unnamed-line-spacing-21) var(--unnamed-font-family-roboto);
+    color: var(--unnamed-color-1a1a1a);
     text-align: center;
-    font: normal normal normal 16px/19px Roboto;
-    letter-spacing: 0.53px;
-    color: #000000;
+    font: normal normal normal 16px/21px Roboto;
+    letter-spacing: 0.45px;
+    color: #1A1A1A;
     opacity: 1;
     margin-top: 5px;
 }
@@ -58,7 +45,6 @@
     letter-spacing: 0.59px;
     color: #1A1A1A;
     opacity: 1;
-    padding-top: 5%;
 }
 
 .input_email {
@@ -113,22 +99,3 @@
     margin-top: 10;
 }
 
-.link {
-    /* UI Properties */
-    font: var(--unnamed-font-style-normal) normal var(--unnamed-font-weight-normal) var(--unnamed-font-size-16)/var(--unnamed-line-spacing-19) var(--unnamed-font-family-roboto);
-    letter-spacing: var(--unnamed-character-spacing-0-53);
-    color: var(--unnamed-color-000000);
-    text-align: center;
-    font: normal normal normal 16px/19px Roboto;
-    letter-spacing: 0.53px;
-    color: #000000;
-    opacity: 1;
-}
-
-.link_div {
-    /* Layout Properties */
-    top: 724px;
-    left: 760px;
-    width: 23px;
-    height: 20px;
-}

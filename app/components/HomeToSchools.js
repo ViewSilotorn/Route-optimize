@@ -1,6 +1,7 @@
 "use client"
 import { useEffect, useState } from "react";
 import styles from '../css/HomeToSchools.module.css';
+import { getAuth } from "firebase/auth";
 
 export default function HomeToSchools() {
     const [students, setStudents] = useState([]);
@@ -9,6 +10,31 @@ export default function HomeToSchools() {
     const [isOpen, setIsOpen] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10; // Number of items per page
+    // const [query, setQuery] = useState("");
+
+
+    // const handleSearch = async () => {
+    //     if (!query.trim()) return;
+
+    //     setLoading(true);
+    //     try {
+    //         const response = await fetch(`'http://192.168.3.246:8080/api/students/search?query=${query}`);
+    //         const data = await response.json();
+
+    //         if (response.ok) {
+    //             setStudents(data);
+    //         } else {
+    //             console.error("Error:", data.error);
+    //             setStudents([]);
+    //         }
+    //     } catch (error) {
+    //         console.error("Failed to fetch search results:", error);
+    //         setStudents([]);
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
+
 
     // Calculate total pages
     const totalPages = Math.ceil(students.length / itemsPerPage);
@@ -25,46 +51,110 @@ export default function HomeToSchools() {
         }
     };
 
-    useEffect(() => {
-        //functionดึงข้อมูลจากAPI
-        const fetchData = async () => {
-            try {
-                // กำหนด Token ที่จะส่งใน header
-                const token = process.env.NEXT_PUBLIC_TOKEN;  // แทนที่ด้วย token ที่ถูกต้อง
+    // useEffect(() => {
+    //     //functionดึงข้อมูลจากAPI
+    //     const fetchData = async () => {
+    //         try {
+    //             // กำหนด Token ที่จะส่งใน header
+    //             const auth = getAuth();
+    //             const user = auth.currentUser;
 
-                const res = await fetch('http://localhost:3000/api/students', {
-                    method: 'GET',  // วิธีการเรียก API
-                    headers: {
-                        'Authorization': `Bearer ${token}`,  // ส่ง token ใน header
-                    },
-                });
+    //             if (!user) throw new Error("User is not logged in");
 
-                console.log('Response Status:', res.status);
+    //             const idToken = await user.getIdToken();
+    //             console.log("JWT Token:", idToken);
 
-                if (!res.ok) {
-                    throw new Error('Failed to fetch students');
-                }
+    //             const res = await fetch('http://192.168.3.246:8080/api/students', {
+    //                 method: 'GET',
+    //                 headers: {
+    //                     'Authorization': `Bearer ${idToken}`,
+    //                     'Content-Type': 'application/json',
+    //                 },
+    //             });
 
-                const data = await res.json();
-                console.log(data)
-                setStudents(data);  // อัพเดตข้อมูลที่ดึงมา
-            } catch (error) {
-                setError(error.message);  // จับ error และแสดง
-            } finally {
-                setLoading(false);  // ปิดสถานะ loading
-            }
-        };
+    //             console.log('Response Status:', res.status);
 
-        fetchData();
-    }, []);
+    //             if (!res.ok) {
+    //                 throw new Error('Failed to fetch students');
+    //             }
+
+    //             const data = await res.json();
+    //             console.log(data)
+    //             setStudents(data);  // อัพเดตข้อมูลที่ดึงมา
+
+    //         } catch (error) {
+    //             setError(error.message);  // จับ error และแสดง
+    //         } finally {
+    //             setLoading(false);  // ปิดสถานะ loading
+    //         }
+    //     };
+
+    //     fetchData();
+    // }, []);
+
+    // return (
+    //   <div className="h-screen flex flex-col">
+    //     {/* Top Section: Search Bar */}
+    //     <div className="flex-none bg-white p-4 shadow-md">
+    //       <div className="flex items-center space-x-2">
+    //         <input
+    //           type="text"
+    //           placeholder="Search..."
+    //           className="flex-grow border border-gray-300 rounded-md p-2"
+    //         />
+    //         <button className="p-2 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200">
+    //           <svg
+    //             xmlns="http://www.w3.org/2000/svg"
+    //             fill="none"
+    //             viewBox="0 0 24 24"
+    //             strokeWidth={1.5}
+    //             stroke="currentColor"
+    //             className="w-5 h-5 text-gray-600"
+    //           >
+    //             <path
+    //               strokeLinecap="round"
+    //               strokeLinejoin="round"
+    //               d="M3.75 3.75h16.5v16.5H3.75V3.75z"
+    //             />
+    //           </svg>
+    //         </button>
+    //       </div>
+    //     </div>
+
+    //     {/* Middle Section: Scrollable List */}
+    //     <div className="flex-1 overflow-y-auto bg-gray-50 p-4">
+    //       <table className="w-full table-auto border-collapse">
+    //         <thead>
+    //           <tr>
+    //             <th className="border-b py-2 text-left font-medium">Firstname</th>
+    //             <th className="border-b py-2 text-left font-medium">Home Address</th>
+    //           </tr>
+    //         </thead>
+    //         <tbody>
+    //           {Array.from({ length: 20 }).map((_, index) => (
+    //             <tr key={index}>
+    //               <td className="border-b py-2">John {index + 1}</td>
+    //               <td className="border-b py-2">123 Main St, City {index + 1}</td>
+    //             </tr>
+    //           ))}
+    //         </tbody>
+    //       </table>
+    //     </div>
+
+    //     {/* Bottom Section: Fixed Button */}
+    //     <div className="flex-none bg-white p-4 shadow-md">
+    //       <button className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600">
+    //         View route directions
+    //       </button>
+    //     </div>
+    //   </div>
+    // );
+
 
     return (
         <div >
-            <div className="relative  h-screen flex flex-col overflow-y-auto">
-                <div className="fixed">
-
-                </div>
-                <div className="flex items-center gap-2">
+           <div className="relative h-screen flex flex-col overflow-y-scroll">
+                <div className="flex  items-center gap-2">
                     <div className="relative">
                         <label htmlFor="Search" className="sr-only"> Search </label>
                         <input
@@ -92,88 +182,34 @@ export default function HomeToSchools() {
                         </button>
                     </div>
                 </div>
-                <table className="min-w-full divide-y-2 divide-gray-200 bg-white mt-5">
-                    <thead className={`${styles.header} ltr:text-left rtl:text-right`}>
-                        <tr>
-                            <th className="ltr:text-left rtl:text-right whitespace-nowrap px-4 py-2">Firstname</th>
-                            <th className="whitespace-nowrap px-4 py-2">Home Address</th>
-                        </tr>
-                    </thead>
 
-                    <tbody className={`${styles.text_student} divide-y divide-gray-200`}>
-                        {currentStudents.map((student) => (
-                            <tr key={student.id}>
-                                <td className="whitespace-nowrap px-4 py-2 ">{student.first_name} </td>
-                                <td className="whitespace-nowrap px-4 py-2 ">{student.address}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+                <div className={`${styles.card} flex w-full p-4 max-w-lg flex-col rounded-lg bg-white shadow-sm border border-slate-200 my-6 hover:bg-gray-100`}>
+                    <div className="flex items-center gap-4 text-slate-800">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-10">
+                            <path fillRule="evenodd" d="m11.54 22.351.07.04.028.016a.76.76 0 0 0 .723 0l.028-.015.071-.041a16.975 16.975 0 0 0 1.144-.742 19.58 19.58 0 0 0 2.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 0 0-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 0 0 2.682 2.282 16.975 16.975 0 0 0 1.145.742ZM12 13.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" clipRule="evenodd" />
+                        </svg>
 
-                {/* button next page */}
-                <ol className="flex justify-center gap-1 text-xs font-medium mt-10">
-                    <li>
-                        <a
-                            onClick={() => handlePageChange(currentPage - 1)}
-                            className={`inline-flex items-center justify-center rounded border border-gray-100 bg-white text-gray-900 ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                            disabled={currentPage === 1}
-                        >
-                            <span className="sr-only">Prev Page</span>
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="size-7"
-                                viewBox="0 0 20 20"
-                                fill="currentColor"
-                            >
-                                <path
-                                    fillRule="evenodd"
-                                    d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
-                                    clipRule="evenodd"
-                                />
-                            </svg>
-                        </a>
-                    </li>
-                    {Array.from({ length: totalPages }, (_, index) => (
-                        <li key={index + 1} className="block size-8 rounded border-blue-600 bg-blue-600 text-center leading-8 text-white">
-                            <button
-                                onClick={() => handlePageChange(index + 1)}
-                                className={`block size-8 rounded border ${currentPage === index + 1 ? 'bg-blue-600 text-white' : 'border-gray-100 bg-white text-gray-900'}`}
-                            >
-                                {index + 1}
-                            </button>
-                        </li>
-                    ))}
-
-                    <li>
-                        <a
-                            onClick={() => handlePageChange(currentPage + 1)}
-                            className={`inline-flex items-center justify-center rounded border border-gray-100 bg-white text-gray-900 ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}`}
-                            disabled={currentPage === totalPages}
-                        >
-                            <span className="sr-only">Next Page</span>
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="size-7"
-                                viewBox="0 0 20 20"
-                                fill="currentColor"
-                            >
-                                <path
-                                    fillRule="evenodd"
-                                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                                    clipRule="evenodd"
-                                />
-                            </svg>
-                        </a>
-                    </li>
-                </ol>
+                        <div className="flex w-full flex-col">
+                            <div className="flex items-center justify-between">
+                                <h5 className="text-xl font-semibold text-slate-800">
+                                    John Doe
+                                </h5>
+                            </div>
+                            <p className="text-xs uppercase font-bold text-slate-500 mt-0.5">
+                                123 Main St,Springfield
+                            </p>
+                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-10">
+                            <path fillRule="evenodd" d="M16.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z" clipRule="evenodd" />
+                        </svg>
+                    </div>
+                </div>
             </div>
-
             <div className="sticky bottom-3 left-0 right-0 shadow-md">
                 <button className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-700 transition">
                     View route directions
                 </button>
             </div>
-
         </div>
     );
 }

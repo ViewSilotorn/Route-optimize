@@ -36,7 +36,7 @@
     opacity: 1;
 }
 .text:focus {
-    color: #000000;  
+    color: #007BFF;  
     font-weight: bold;
 }
 

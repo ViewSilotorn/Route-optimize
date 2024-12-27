@@ -2,14 +2,17 @@
 import { useEffect, useState } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import styles from '../css/nav.module.css';
-import popup from '../css/success.module.css';
 import style from '../css/side.module.css';
+import stEdit from '../css/edit.module.css';
+import stAddList from '../css/addListStudent.module.css'
 import St from '../css/student.module.css';
 import Link from 'next/link';
 import HomeToSchools from "./HomeToSchools";
 import BusStop from "./BusStop";
-import { StudentService } from "../services/studentService";
-import Modal from "./Modal";
+import Route from "./Route";
+import { getAuth } from "firebase/auth";
+import ModalDelete from "./ModalDelete";
+import app from "../../config";
 
 export default function Sidebar({ selectedMenu }) {
     const [students, setStudents] = useState([]);
@@ -20,17 +23,19 @@ export default function Sidebar({ selectedMenu }) {
     const [addListStudent, setAddListStudent] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10; // Number of items per page
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
+    const [isEdit, setisEdit] = useState(false);
 
-    const openModal = () => setIsModalOpen(true);
-    const closeModal = () => setIsModalOpen(false);
+    const openModalDelete = () => setIsModalDeleteOpen(true);
+    const closeModalDelete = () => setIsModalDeleteOpen(false);
+
     // Calculate total pages
     const totalPages = Math.ceil(students.length / itemsPerPage);
 
     // Get current page's students
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-    const currentStudents = students.slice(startIndex, endIndex);
+    const Students = students.slice(startIndex, endIndex);
 
     // Handle page change
     const handlePageChange = (page) => {
@@ -54,17 +59,28 @@ export default function Sidebar({ selectedMenu }) {
         setAddListStudent(true);
     }
 
+    const toggleEditPage = () => {
+        setisEdit(true)
+    }
+
     useEffect(() => {
         //functionดึงข้อมูลจากAPI
         const fetchData = async () => {
             try {
                 // กำหนด Token ที่จะส่งใน header
-                const token = process.env.NEXT_PUBLIC_TOKEN;  // แทนที่ด้วย token ที่ถูกต้อง
+                const auth = getAuth();
+                const user = auth.currentUser;
 
-                const res = await fetch('http://localhost:3000/api/students', {
-                    method: 'GET',  // วิธีการเรียก API
+                if (!user) throw new Error("User is not logged in");
+
+                const idToken = await user.getIdToken();
+                console.log("JWT Token:", idToken);
+
+                const res = await fetch('http://192.168.3.246:8080/api/students', {
+                    method: 'GET',
                     headers: {
-                        'Authorization': `Bearer ${token}`,  // ส่ง token ใน header
+                        'Authorization': `Bearer ${idToken}`,
+                        'Content-Type': 'application/json',
                     },
                 });
 
@@ -77,6 +93,7 @@ export default function Sidebar({ selectedMenu }) {
                 const data = await res.json();
                 console.log(data)
                 setStudents(data);  // อัพเดตข้อมูลที่ดึงมา
+
             } catch (error) {
                 setError(error.message);  // จับ error และแสดง
             } finally {
@@ -92,9 +109,7 @@ export default function Sidebar({ selectedMenu }) {
         switch (menu) {
             case 'Route':
                 return (
-                    <div>
-
-                    </div>
+                    <Route />
                 );
             case 'Home To Schools':
                 return (
@@ -109,8 +124,14 @@ export default function Sidebar({ selectedMenu }) {
                     <div className="overflow-x-5">
                         <header className="bg-white">
                             <div className="mx-auto max-w-screen-xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
-                                <div className="flex flex-col  gap-28 md:flex-row md:items-center md:justify-between">
-                                    import Link from 'next/link';
+                                <div className="flex flex-col gap-28 md:flex-row md:items-center md:justify-between">
+                                    <div>
+                                        <h1 className={St.text}>Students</h1>
+
+                                        <p className={`${St.p} mt-1.5`}>
+                                            This page provides a detailed list of all students in your account.
+                                        </p>
+                                    </div>
                                     <div className="flex items-center gap-3 mt-2">
                                         <div className="relative">
                                             <label htmlFor="Search" className="sr-only"> Search </label>
@@ -164,30 +185,41 @@ export default function Sidebar({ selectedMenu }) {
                                         <tr>
                                             <th className="ltr:text-left rtl:text-right whitespace-nowrap px-4 py-2">Firstname</th>
                                             <th className="whitespace-nowrap px-4 py-2 text-gray-900">Lastname</th>
+                                            <th className="whitespace-nowrap px-4 py-2 text-gray-900">Age</th>
+                                            <th className="whitespace-nowrap px-4 py-2 text-gray-900">Gender</th>
                                             <th className="whitespace-nowrap px-4 py-2 text-gray-900">Home Address</th>
                                             <th className="whitespace-nowrap px-4 py-2 text-gray-900">Latitude</th>
                                             <th className="whitespace-nowrap px-4 py-2 text-gray-900">Longitude</th>
+                                            <th className="whitespace-nowrap px-4 py-2 text-gray-900">Status</th>
                                             <th className="whitespace-nowrap px-4 py-2 text-gray-900">Action</th>
                                         </tr>
                                     </thead>
 
                                     <tbody className={`${St.text_Student} divide-y divide-gray-200`}>
-                                        {currentStudents.map((student) => (
+                                        {Students.map((student) => (
                                             <tr key={student.id}>
                                                 <td className="whitespace-nowrap px-4 py-2">{student.first_name} </td>
                                                 <td className="whitespace-nowrap px-4 py-2">{student.last_name}</td>
+                                                <td className="whitespace-nowrap px-4 py-2">{student.age}</td>
+                                                <td className="whitespace-nowrap px-4 py-2">{student.gender}</td>
                                                 <td className="whitespace-nowrap px-4 py-2">{student.address}</td>
                                                 <td className="whitespace-nowrap px-4 py-2">{student.latitude}</td>
                                                 <td className="whitespace-nowrap px-4 py-2">{student.longitude}</td>
+                                                <td className="whitespace-nowrap px-4 py-2">{student.status}</td>
                                                 <td className="whitespace-nowrap px-4 py-2">
                                                     <div className="flex space-x-3">
-                                                        <svg onClick={openModal} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#007BFF" className="size-6">
-                                                            <path d="M21.731 2.269a2.625 2.625 0 0 0-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 0 0 0-3.712ZM19.513 8.199l-3.712-3.712-8.4 8.4a5.25 5.25 0 0 0-1.32 2.214l-.8 2.685a.75.75 0 0 0 .933.933l2.685-.8a5.25 5.25 0 0 0 2.214-1.32l8.4-8.4Z" />
-                                                            <path d="M5.25 5.25a3 3 0 0 0-3 3v10.5a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3V13.5a.75.75 0 0 0-1.5 0v5.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5V8.25a1.5 1.5 0 0 1 1.5-1.5h5.25a.75.75 0 0 0 0-1.5H5.25Z" />
-                                                        </svg>
-                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#dc2626" className="size-6">
-                                                            <path fillRule="evenodd" d="M16.5 4.478v.227a48.816 48.816 0 0 1 3.878.512.75.75 0 1 1-.256 1.478l-.209-.035-1.005 13.07a3 3 0 0 1-2.991 2.77H8.084a3 3 0 0 1-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 0 1-.256-1.478A48.567 48.567 0 0 1 7.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 0 1 3.369 0c1.603.051 2.815 1.387 2.815 2.951Zm-6.136-1.452a51.196 51.196 0 0 1 3.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 0 0-6 0v-.113c0-.794.609-1.428 1.364-1.452Zm-.355 5.945a.75.75 0 1 0-1.5.058l.347 9a.75.75 0 1 0 1.499-.058l-.346-9Zm5.48.058a.75.75 0 1 0-1.498-.058l-.347 9a.75.75 0 0 0 1.5.058l.345-9Z" clipRule="evenodd" />
-                                                        </svg>
+                                                        <button onClick={toggleEditPage}>
+                                                            <svg
+                                                                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#007BFF" className="size-6">
+                                                                <path d="M21.731 2.269a2.625 2.625 0 0 0-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 0 0 0-3.712ZM19.513 8.199l-3.712-3.712-8.4 8.4a5.25 5.25 0 0 0-1.32 2.214l-.8 2.685a.75.75 0 0 0 .933.933l2.685-.8a5.25 5.25 0 0 0 2.214-1.32l8.4-8.4Z" />
+                                                                <path d="M5.25 5.25a3 3 0 0 0-3 3v10.5a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3V13.5a.75.75 0 0 0-1.5 0v5.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5V8.25a1.5 1.5 0 0 1 1.5-1.5h5.25a.75.75 0 0 0 0-1.5H5.25Z" />
+                                                            </svg>
+                                                        </button>
+                                                        <button onClick={openModalDelete} >
+                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#dc2626" className="size-6">
+                                                                <path fillRule="evenodd" d="M16.5 4.478v.227a48.816 48.816 0 0 1 3.878.512.75.75 0 1 1-.256 1.478l-.209-.035-1.005 13.07a3 3 0 0 1-2.991 2.77H8.084a3 3 0 0 1-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 0 1-.256-1.478A48.567 48.567 0 0 1 7.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 0 1 3.369 0c1.603.051 2.815 1.387 2.815 2.951Zm-6.136-1.452a51.196 51.196 0 0 1 3.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 0 0-6 0v-.113c0-.794.609-1.428 1.364-1.452Zm-.355 5.945a.75.75 0 1 0-1.5.058l.347 9a.75.75 0 1 0 1.499-.058l-.346-9Zm5.48.058a.75.75 0 1 0-1.498-.058l-.347 9a.75.75 0 0 0 1.5.058l.345-9Z" clipRule="evenodd" />
+                                                            </svg>
+                                                        </button>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -199,6 +231,16 @@ export default function Sidebar({ selectedMenu }) {
 
                         {/* button page change */}
                         <ol className="flex justify-end gap-1 text-xs font-medium mt-10">
+                            <div className="sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                                <div>
+                                    <p className={`${St.text_showing} px-10`}>
+                                        Showing
+                                        <span className="px-2">{currentPage}</span>
+                                        to
+                                        <span className="px-2">{totalPages}</span>
+                                    </p>
+                                </div>
+                            </div>
                             <li>
                                 <button
                                     onClick={() => handlePageChange(currentPage - 1)}
@@ -255,17 +297,16 @@ export default function Sidebar({ selectedMenu }) {
                         </ol>
                     </div>
                 );
-            default:
-                return null;
+
         }
     }
 
     return (
         <div className="relative">
-            <div className={`fixed top-0 left-0 h-full overflow-y-scroll bg-white shadow-lg transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "-translate-x-full"
+            <div className={`fixed top-0 left-0 h-full bg-white shadow-lg transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "-translate-x-full"
                 } w-auto`}>
                 {/* <div className="overflow-y-scroll ml-5 mt-28 mr-5"> */}
-                <div className=" ml-5 mt-28 mr-5">
+                <div className="ml-5 mt-20 mr-5 ">
                     <div>
                         {getMenuContent(selectedMenu)}
                     </div>
@@ -288,9 +329,9 @@ export default function Sidebar({ selectedMenu }) {
             {addStudent && (
                 <div className={`${styles.root_login}`}>
                     <main className={style.card}>
-                        <div className="flex min-h-full flex-1 flex-col justify-center px-4 py-8 lg:px-6">
+                        <div className="flex min-h-full flex-1 flex-col justify-center px-4 py-8 lg:py-12">
                             <Link href="" onClick={() => setAddStudent(false)} className={style.link}>
-                                <div className='flex px-10 py-4 '>
+                                <div className='flex px-10'>
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
                                     </svg>
@@ -299,7 +340,7 @@ export default function Sidebar({ selectedMenu }) {
                                     </div>
                                 </div>
                             </Link>
-                            <div className="sm:mx-auto sm:w-full sm:max-w-sm">
+                            <div className="py-10 px-24">
                                 <h2 className={style.title}>
                                     Add Student
                                 </h2>
@@ -307,59 +348,122 @@ export default function Sidebar({ selectedMenu }) {
                                     Fill out the form below to add a new student to the system.
                                 </div>
                             </div>
-                            <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-sm">
-                                <form action="#" method="POST" className="space-y-6">
-                                    <div className={style.text_email}>
-                                        <label htmlFor="firstName">
-                                            First name
+                            <div
+                                className="flex items-center justify-center"
+                            >
+                                <form action="#" className="grid grid-cols-6 gap-6">
+                                    <div className={`${style.text_email} col-span-6 sm:col-span-3`}>
+                                        <label htmlFor="FirstName" >
+                                            First Name
                                         </label>
                                         <div className={style.input_placeholder_email}>
                                             <input
-                                                id="firstName"
-                                                name="firstName"
                                                 type="text"
-                                                placeholder="Enter first name"
-                                                required
+                                                id="FirstName"
+                                                name="first_name"
                                                 className={style.input_email}
                                             />
                                         </div>
                                     </div>
 
-                                    <div className={style.text_email}>
-                                        <label htmlFor="lastName">
-                                            Last name
+                                    <div className={`${style.text_email} col-span-6 sm:col-span-3`}>
+                                        <label htmlFor="FirstName" >
+                                            Last Name
                                         </label>
                                         <div className={style.input_placeholder_email}>
                                             <input
-                                                id="lastName"
-                                                name="lastName"
                                                 type="text"
-                                                placeholder="Enter last name"
-                                                required
+                                                id="LastName"
+                                                name="LastName"
                                                 className={style.input_email}
                                             />
                                         </div>
                                     </div>
 
-                                    <div className={style.text_email}>
-                                        <label htmlFor="address">
+                                    <div className={`${style.text_email} col-span-6 sm:col-span-3`}>
+                                        <label htmlFor="Age" >
+                                            Age
+                                        </label>
+                                        <div className={style.input_placeholder_email}>
+                                            <input
+                                                type="text"
+                                                id="Age"
+                                                name="Age"
+                                                className={style.input_email}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className={`${style.text_email} col-span-6 sm:col-span-3`}>
+                                        <label htmlFor="Gender" >
+                                            Gender
+                                        </label>
+                                        <select id="countries" class={`${style.select} block`}>
+                                            <option selected>Select gender</option>
+                                            <option value="">male</option>
+                                            <option value="">Female</option>
+                                        </select>
+                                    </div>
+
+                                    <div className={`${style.text_email} col-span-6 sm:col-span-3`}>
+                                        <label htmlFor="HomeAddress" >
                                             Home Address
                                         </label>
                                         <div className={style.input_placeholder_email}>
                                             <input
-                                                id="address"
-                                                name="address"
                                                 type="text"
-                                                placeholder="Enter student home address"
-                                                required
+                                                id="HomeAddress"
+                                                name="HomeAddress"
                                                 className={style.input_email}
                                             />
                                         </div>
                                     </div>
 
-                                    <div className="flex justify-center space-x-4">
-                                        <button className={style.btn_add}>Add Student</button>
-                                        <button className={style.btn_cancel} onClick={() => setAddStudent(false)}>Cancel</button>
+                                    <div className={`${style.text_email} col-span-6 sm:col-span-3`}>
+                                        <label htmlFor="Status" >
+                                            Status
+                                        </label>
+                                        <select id="countries" class={`${style.select} block`}>
+                                            <option selected>Select status</option>
+                                            <option value="">1</option>
+                                            <option value="">2</option>
+                                        </select>
+                                    </div>
+
+                                    <div className={`${style.text_email} col-span-6 sm:col-span-3`}>
+                                        <label htmlFor="Latitude" >
+                                            Latitude
+                                        </label>
+                                        <div className={style.input_placeholder_email}>
+                                            <input
+                                                type="text"
+                                                id="Latitude"
+                                                name="Latitude"
+                                                className={style.input_email}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className={`${style.text_email} col-span-6 sm:col-span-3`}>
+                                        <label htmlFor="Longitude" >
+                                            Longitude
+                                        </label>
+                                        <div className={style.input_placeholder_email}>
+                                            <input
+                                                type="text"
+                                                id="Longitude"
+                                                name="Longitude"
+                                                className={style.input_email}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="col-span-6 justify-end sm:flex sm:items-center sm:gap-4">
+                                        <button
+                                            className={style.btn_add}
+                                        >
+                                            Add Student
+                                        </button>
                                     </div>
                                 </form>
                             </div>
@@ -370,8 +474,8 @@ export default function Sidebar({ selectedMenu }) {
 
             {addListStudent && (
                 <div className={styles.root_login}>
-                    <main className={style.card}>
-                        <div className="flex min-h-full flex-1 flex-col justify-center px-4 py-8 lg:px-6">
+                    <main className={stAddList.card}>
+                        <div className="mt-5">
                             <Link href="" onClick={() => setAddListStudent(false)} className={style.link}>
                                 <div className='flex px-10 py-4 '>
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
@@ -382,40 +486,184 @@ export default function Sidebar({ selectedMenu }) {
                                     </div>
                                 </div>
                             </Link>
-                            <div className="sm:mx-auto sm:w-full sm:max-w-sm">
+                            <div className="py-5 px-24">
                                 <h2 className={style.title}>
-                                    Add List Student
+                                    Add List of Student
                                 </h2>
-                                <div className={style.p}>
+                                <div className={stAddList.p}>
                                     Easily add student details to assign routes and manage pickup schedules.
                                 </div>
                             </div>
+                            <div className="sm:mx-auto sm:w-full sm:max-w-sm">
+
+                            </div>
                             <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-sm">
-                                <div className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-gray-400 rounded-lg">
-                                    <div
-                                        className="flex flex-col items-center justify-center"
-                                    >
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-16 h-16 text-blue-600">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15M9 12l3 3m0 0 3-3m-3 3V2.25" />
-                                        </svg>
 
-                                        <p className="mt-2 text-lg font-semibold text-gray-700">Drag and drop file here</p>
-                                        <p className="text-sm text-gray-500">Or</p>
-                                        <label>
-                                            <input type="file" hidden />
-                                            <div className="flex w-28 h-9 px-2 flex-col bg-white border border-blue-400 rounded-full shadow text-blue text-xs  leading-4 items-center justify-center cursor-pointer focus:outline-none">Browse files</div>
-                                        </label>
+                                <div class="flex items-center justify-center w-full">
+                                    <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-96 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
+                                        <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                            <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
+                                            </svg>
+                                            <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">XLS,XLSX,CSV (Size limit: 1 MB)</p>
+                                        </div>
+                                        <input id="dropzone-file" type="file" class="hidden" />
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex justify-center space-x-4 mt-5">
+                            <button className={style.btn_add}>Add Student</button>
+                            <button className={style.btn_cancel} onClick={() => setAddListStudent(false)}>Cancel</button>
+                        </div>
+                    </main >
+                </div>
+            )}
+
+            <ModalDelete isOpen={isModalDeleteOpen} onClose={closeModalDelete}>
+            </ModalDelete>
+
+            {isEdit && (
+                <div className={`${styles.root_login}`}>
+                    <main className={style.card}>
+                        <div className="flex min-h-full flex-1 flex-col justify-center px-4 py-8 lg:py-12">
+                            <Link href="" onClick={() => setAddStudent(false)} className={style.link}>
+                                <div className='flex px-10'>
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+                                    </svg>
+                                    <div className='ml-2'>
+                                        Back to Student
                                     </div>
-                                    <p className="mt-4 text-xs text-gray-400">
-                                        Files supported: XLS, XLSX, CSV
-                                    </p>
-                                    <p className="mt-1 text-xs text-gray-400">Size limit: 1 MB</p>
                                 </div>
+                            </Link>
+                            <div className="py-10 px-24">
+                                <h2 className={style.title}>
+                                    Add Student
+                                </h2>
+                                <div className={style.p}>
+                                    Fill out the form below to add a new student to the system.
+                                </div>
+                            </div>
+                            <div
+                                className="flex items-center justify-center"
+                            >
+                                <form action="#" className="grid grid-cols-6 gap-6">
+                                    <div className={`${style.text_email} col-span-6 sm:col-span-3`}>
+                                        <label htmlFor="FirstName" >
+                                            First Name
+                                        </label>
+                                        <div className={style.input_placeholder_email}>
+                                            <input
+                                                type="text"
+                                                id="FirstName"
+                                                name="first_name"
+                                                className={style.input_email}
+                                            />
+                                        </div>
+                                    </div>
 
-                                <div className="flex justify-center space-x-4 mt-5">
-                                    <button className={style.btn_add}>Add Student</button>
-                                    <button className={style.btn_cancel} onClick={() => setAddListStudent(false)}>Cancel</button>
-                                </div>
+                                    <div className={`${style.text_email} col-span-6 sm:col-span-3`}>
+                                        <label htmlFor="FirstName" >
+                                            Last Name
+                                        </label>
+                                        <div className={style.input_placeholder_email}>
+                                            <input
+                                                type="text"
+                                                id="LastName"
+                                                name="LastName"
+                                                className={style.input_email}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className={`${style.text_email} col-span-6 sm:col-span-3`}>
+                                        <label htmlFor="Age" >
+                                            Age
+                                        </label>
+                                        <div className={style.input_placeholder_email}>
+                                            <input
+                                                type="text"
+                                                id="Age"
+                                                name="Age"
+                                                className={style.input_email}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className={`${style.text_email} col-span-6 sm:col-span-3`}>
+                                        <label htmlFor="Gender" >
+                                            Gender
+                                        </label>
+                                        <select id="countries" class={`${style.select} block`}>
+                                            <option selected>Select gender</option>
+                                            <option value="">male</option>
+                                            <option value="">Female</option>
+                                        </select>
+                                    </div>
+
+                                    <div className={`${style.text_email} col-span-6 sm:col-span-3`}>
+                                        <label htmlFor="HomeAddress" >
+                                            Home Address
+                                        </label>
+                                        <div className={style.input_placeholder_email}>
+                                            <input
+                                                type="text"
+                                                id="HomeAddress"
+                                                name="HomeAddress"
+                                                className={style.input_email}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className={`${style.text_email} col-span-6 sm:col-span-3`}>
+                                        <label htmlFor="Status" >
+                                            Status
+                                        </label>
+                                        <select id="countries" class={`${style.select} block`}>
+                                            <option selected>Select status</option>
+                                            <option value="">1</option>
+                                            <option value="">2</option>
+                                        </select>
+                                    </div>
+
+                                    <div className={`${style.text_email} col-span-6 sm:col-span-3`}>
+                                        <label htmlFor="Latitude" >
+                                            Latitude
+                                        </label>
+                                        <div className={style.input_placeholder_email}>
+                                            <input
+                                                type="text"
+                                                id="Latitude"
+                                                name="Latitude"
+                                                className={style.input_email}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className={`${style.text_email} col-span-6 sm:col-span-3`}>
+                                        <label htmlFor="Longitude" >
+                                            Longitude
+                                        </label>
+                                        <div className={style.input_placeholder_email}>
+                                            <input
+                                                type="text"
+                                                id="Longitude"
+                                                name="Longitude"
+                                                className={style.input_email}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="col-span-6 justify-end sm:flex sm:items-center sm:gap-4">
+                                        <button
+                                            className={style.btn_add}
+                                        >
+                                            Add Student
+                                        </button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     </main >

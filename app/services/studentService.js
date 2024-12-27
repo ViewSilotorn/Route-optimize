@@ -1,26 +1,13 @@
 import axios from 'axios';
-import { StudentGetResponse } from '../model/StudentGetResponse';
 
-const HOST = 'http://localhost:3000/api';
+const API_BASE_URL = 'http://192.168.3.246:8080/api';
 
-export class StudentService {
-    async getAllStudent() {
-        const url = `${HOST}/students`;
-        const response = await axios.get(url);
-        const students = response.data.map(studentData =>
-            new StudentGetResponse(
-                studentData.id,
-                studentData.first_name,
-                studentData.last_name,
-                studentData.age,
-                studentData.gender,
-                studentData.address,
-                studentData.latitude,
-                studentData.longitude,
-                studentData.status,
-                studentData.user_id,
-            )
-        );
-        return students;
+export const fetchPageData = async (page) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/students/page/${page}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error Page data', error);
+        throw error;
     }
 }

@@ -5,12 +5,126 @@ import { useRouter } from 'next/navigation';
 import styles from './css/login.module.css'
 import Image from 'next/image';
 import Logo from './Image/Logo.png'
-import { useState } from 'react';
+import { useRef, useState, useEffect } from "react";
 import Form from 'next/form'
+import app from "../config";
+import {
+  getAuth,
+  onAuthStateChanged,
+  signInWithPopup,
+  GoogleAuthProvider,
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+} from "firebase/auth";
+import { subscribeAuthState } from './services/authService';
+
 
 export default function Home() {
   const router = useRouter()
+  const [user, setUser] = useState(null);
+  const [error, setError] = useState(null);
+  const [emailForPasswordReset, setEmailForPasswordReset] = useState(""); // สำหรับกรอกอีเมลในการรีเซ็ตรหัสผ่าน
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false); // สำหรับควบคุมการแสดง Modal
   const [showPassword, setShowPassword] = useState(false);
+  const [idToken, setIdToken] = useState(null);
+
+  useEffect(() => {
+    const auth = getAuth(app);
+    const unsubscribe = subscribeAuthState(setUser, setIdToken);
+    //   if (user) {
+    //     if (!user.emailVerified) {
+    //       // setError("Please verify your email before accessing your account.");
+    //       auth.signOut();
+    //       setUser(null);
+    //     } else {
+    //       setUser(user);
+    //     }
+    //   } else {
+    //     setUser(null);
+    //   }
+    // });
+    return () => unsubscribe();
+  }, []);
+
+  const handleSubmit = async (e) => {
+
+    // console.log("IN");
+
+    e.preventDefault();
+    // setError(null);
+    const auth = getAuth(app);
+    const email = e.target.email.value;
+    const password = e.target.password.value;
+
+    console.log('email: ' + email)
+    try {
+      const result = await signInWithEmailAndPassword(auth, email, password);
+      const user = result.user;
+
+      if (!user.emailVerified) {
+        setError("Please verify your email before logging in.");
+        await auth.signOut();
+        return;
+      }
+
+
+      const idToken = await user.getIdToken();
+      console.log("JWT Token 1:", idToken);
+
+      // console.log("User logged in:", user);
+
+
+      router.push("/pages/map");
+    } catch (error) {
+      // console.error("Error logging in:", error.message);
+      // setError("Login failed: " + error.message);
+    }
+  };
+
+  const signInWithGoogle = async () => {
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account" });
+
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      // if (!user.emailVerified) {
+      //   setError("Please verify your email before logging in.");
+      //   await auth.signOut();
+      //   return;
+      // }
+
+      // const idToken = await user.getIdToken();
+      // console.log("JWT Token 2:", idToken);
+
+      // console.log("Signed in with Google:", user);
+      router.push("/pages/map");
+    } catch (error) {
+      // console.error("Error signing in with Google:", error.message);
+      // setError("Google sign-in failed: " + error.message);
+    }
+  };
+
+  const handlePasswordResetRequest = async (e) => {
+    e.preventDefault();
+    if (!emailForPasswordReset) {
+      alert("Please enter your email address.");
+      return;
+    }
+
+
+    const auth = getAuth(app);
+    try {
+      await sendPasswordResetEmail(auth, emailForPasswordReset);
+      alert("Password reset email sent! Please check your inbox.");
+      setIsResetModalOpen(false); // ปิด Modal หลังจากส่งอีเมล
+    } catch (error) {
+      alert("Error sending password reset email: " + error.message);
+    }
+  };
+
   return (
     // <div className={styles.root_login}>
     //   <main className={styles.card}>
@@ -19,8 +133,8 @@ export default function Home() {
         <div className='flex justify-center'>
           <Image
             src={Logo}
-            width={161}
-            height={161}
+            width={160}
+            height={160}
             alt="Picture of the author"
           />
         </div>
@@ -33,7 +147,7 @@ export default function Home() {
         </div>
       </div>
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-        <Form action="#" className="space-y-6">
+        <Form onSubmit={handleSubmit} className="space-y-6">
           <div className={styles.text_email}>
             <label htmlFor="email" >
               Work email
@@ -45,6 +159,7 @@ export default function Home() {
                 type="email"
                 placeholder="Enter your Email"
                 required
+                autoComplete="email"
                 aria-label="input"
                 className={styles.input_email}
               />
@@ -70,8 +185,10 @@ export default function Home() {
                 type={showPassword ? "text" : "password"}
                 placeholder="Enter your password"
                 required
+                autoComplete="password"
                 className={styles.input_password}
               />
+              {error && <p className="text-red-500 text-sm">{error}</p>}
               <button type='button' onClick={() => setShowPassword(!showPassword)}
                 className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 focus:outline-none">
                 {showPassword ? (
@@ -92,14 +209,14 @@ export default function Home() {
           </div>
 
           <div>
-            <button type="submit" onClick={() => router.push('/pages/map')} className={styles.btn_login} >Login</button>
+            <button type="submit" className={styles.btn_login} >Log in</button>
           </div>
           <div className={styles.hr_line}>
             <span className='mt-10'>Or</span>
           </div>
         </Form>
         <div>
-          <button type="submit" className={styles.btn_google}>
+          <button type="submit" onClick={signInWithGoogle} className={styles.btn_google}>
             <div className={styles.logo_google}>
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g >

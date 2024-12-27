@@ -1,14 +1,17 @@
 'use client'
 import Link from 'next/link';
 import Form from 'next/form';
-import styles from '../css/nav.module.css';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import popup from '../css/success.module.css';
-import style from '../css/forgotpass.module.css';
+import styles from '../css/nav.module.css';
+import style from '../pages/forGotPass/forgotpass.module.css';
+import st from '../css/repass.module.css'
 import Image from 'next/image';
 import Logo from '../Image/LogoHeader.png'
 import Modal from "../components/Modal";
+import { getAuth, signOut, onAuthStateChanged, sendPasswordResetEmail } from "firebase/auth";
+import app from "../../config.js";
+
 
 export default function Navbar({ onSelectMenu }) {
     const menus = [
@@ -23,15 +26,19 @@ export default function Navbar({ onSelectMenu }) {
     const [showPopupReset, setShowPopupReset] = useState(false);
     const [isOpenMenu, setIsOpenMenu] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const auth = getAuth(app);
+    const [user, setUser] = useState(null);
+    const [emailForPasswordReset, setEmailForPasswordReset] = useState(""); // State for email input
+    // const [isResetModalOpen, setIsResetModalOpen] = useState(false); // To control reset modal visibility
 
-    const openModal = () => setIsModalOpen(true);
+
+    // const openModal = () => setIsModalOpen(true);
     const closeModal = () => setIsModalOpen(false);
 
 
-    const handleResetSubmit = () => {
-        // e.preventDefault();
+    const openModal = () => {
         setShowPopupReset(false);
-        setShowPopup(true);
+        setIsModalOpen(true);
     }
 
     const toggleDropdown = () => {
@@ -41,6 +48,50 @@ export default function Navbar({ onSelectMenu }) {
     const toggleMenu = () => {
         setIsOpenMenu(!isOpenMenu);
     }
+
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                setUser(user);
+            } else {
+                setUser(null);
+                router.push("/pages/signUp"); // Redirect if not logged in
+            }
+        });
+
+        return () => unsubscribe();
+    }, [auth, router]);
+
+    const handleSignOut = async () => {
+        try {
+            await signOut(auth);
+            router.push("/"); // Redirect to the home page after sign out
+        } catch (error) {
+            console.error("Error signing out:", error.message);
+        }
+    };
+
+    const handlePasswordResetRequest = async (e) => {
+        e.preventDefault();
+        console.log("email");
+
+        if (!emailForPasswordReset) {
+            alert("Please enter your email address.");
+            console.log(emailForPasswordReset);
+
+            return;
+        }
+
+        try {
+            await sendPasswordResetEmail(auth, emailForPasswordReset);
+            // alert("Password reset email sent! Please check your inbox.");
+            openModal(true)
+            setShowPopupReset(false); // Close the modal after sending the reset email
+        } catch (error) {
+            alert("Error sending password reset email: " + error.message);
+        }
+
+    };
 
     return (
         <header className={styles.navbar}>
@@ -96,7 +147,7 @@ export default function Navbar({ onSelectMenu }) {
 
             {/* dropdown profile */}
             {isOpen && (
-                <div className='absolute right-1 mt-2 w-64 h-56 bg-white border rounded shadow-lg'>
+                <div className='absolute right-1 mt-2 w-64 h-56 bg-white border rounded shadow-lg z-10'>
                     <div className='py-1 flex flex-col items-center justify-center p-4'>
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="#00000029" className="size-20">
                             <path fillRule="evenodd" d="M15 8A7 7 0 1 1 1 8a7 7 0 0 1 14 0Zm-5-2a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM8 9c-1.825 0-3.422.977-4.295 2.437A5.49 5.49 0 0 0 8 13.5a5.49 5.49 0 0 0 4.294-2.063A4.997 4.997 0 0 0 8 9Z" clipRule="evenodd" />
@@ -112,7 +163,7 @@ export default function Navbar({ onSelectMenu }) {
                                 <path fillRule="evenodd" d="M15.75 1.5a6.75 6.75 0 0 0-6.651 7.906c.067.39-.032.717-.221.906l-6.5 6.499a3 3 0 0 0-.878 2.121v2.818c0 .414.336.75.75.75H6a.75.75 0 0 0 .75-.75v-1.5h1.5A.75.75 0 0 0 9 19.5V18h1.5a.75.75 0 0 0 .53-.22l2.658-2.658c.19-.189.517-.288.906-.22A6.75 6.75 0 1 0 15.75 1.5Zm0 3a.75.75 0 0 0 0 1.5A2.25 2.25 0 0 1 18 8.25a.75.75 0 0 0 1.5 0 3.75 3.75 0 0 0-3.75-3.75Z" clipRule="evenodd" />
                             </svg>
                                 <span>Reset password</span> </li>
-                            <li onClick={() => router.push('/')} className='flex mr-7 mt-1'><svg className="size-5 mr-2 mt-0.5" width="24" height="24" viewBox="0 0 24 24" stroke="currentColor" fill="none" >  <path stroke="none" d="M0 0h24v24H0z" />  <path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" />  <path d="M7 12h14l-3 -3m0 6l3 -3" /></svg>Log out</li>
+                            <li onClick={handleSignOut} className='flex mr-7 mt-1'><svg className="size-5 mr-2 mt-0.5" width="24" height="24" viewBox="0 0 24 24" stroke="currentColor" fill="none" >  <path stroke="none" d="M0 0h24v24H0z" />  <path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" />  <path d="M7 12h14l-3 -3m0 6l3 -3" /></svg>Log out</li>
                         </ul>
                     </div>
                 </div>
@@ -120,48 +171,49 @@ export default function Navbar({ onSelectMenu }) {
 
             {/* Popup Reset */}
             {showPopupReset && (
-                <div className={`${styles.root_login} fixed inset-0  bg-black bg-opacity-50 z-50`}>
-                    <main className={style.card}>
-                        <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
+                <div className={`${st.root_login} fixed inset-0  bg-black bg-opacity-50 z-50`}>
+                    <main className={st.card}>
+                        <div className="flex  flex-1 flex-col justify-center px-6 py-12 lg:px-8">
                             <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-                                <h2 className={style.title}>
+                                <h2 className={st.title}>
                                     Reset password
                                 </h2>
-                                <div className={style.p}>
+                                <div className={st.p}>
                                     Reset password with your email
                                 </div>
                             </div>
                             <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-sm">
-                                <Form action="#" className="space-y-6">
-                                    <div className={style.text_email}>
+                                <form onSubmit={handlePasswordResetRequest} className="space-y-6">
+                                    <div className={st.text_email}>
                                         <label htmlFor="email">
-                                            Email
+                                            Work email
                                         </label>
-                                        <div className={style.input_placeholder_email}>
+                                        <div className={st.input_placeholder_email}>
                                             <input
                                                 id="email"
                                                 name="email"
                                                 type="email"
                                                 placeholder="Enter your email"
+                                                value={emailForPasswordReset}
+                                                onChange={(e) => setEmailForPasswordReset(e.target.value)}
                                                 required
                                                 autoComplete="email"
-                                                className={style.input_email}
+                                                className={st.input_email}
                                             />
                                         </div>
                                     </div>
                                     <div>
-                                        <button onClick={openModal} className={style.btn}>Submit</button>
+                                        <button type="submit" // Explicitly set as a submit button
+                                            className={st.btn}>Submit</button>
                                     </div>
-                                </Form>
-                                <Modal isOpen={isModalOpen} onClose={closeModal}>
-                                </Modal>
-                                <div className='mt-24'>
-                                    <Link href="#" onClick={() => setShowPopupReset(false)} className={styles.link}>
+                                </form>
+                                <div className='mt-20'>
+                                    <Link href="#" onClick={() => setShowPopupReset(false)} className={st.link}>
                                         <div className='flex'>
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
                                             </svg>
-                                            <div className='ml-2'>
+                                            <div className='ml-2 mt-1'>
                                                 Back to log in
                                             </div>
                                         </div>
@@ -172,6 +224,8 @@ export default function Navbar({ onSelectMenu }) {
                     </main >
                 </div>
             )}
+            <Modal isOpen={isModalOpen} onClose={closeModal}>
+            </Modal>
 
             {/* mobile-menu-navbar */}
             <div
