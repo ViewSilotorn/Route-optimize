@@ -123,7 +123,7 @@ export default function Sidebar({ selectedMenu }) {
                 return (
                     <div className="overflow-x-5">
                         <header className="bg-white">
-                            <div className="mx-auto max-w-screen-xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+                            <div className="mx-auto px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
                                 <div className="flex flex-col gap-28 md:flex-row md:items-center md:justify-between">
                                     <div>
                                         <h1 className={St.text}>Students</h1>
@@ -139,7 +139,7 @@ export default function Sidebar({ selectedMenu }) {
                                                 type="text"
                                                 id="Search"
                                                 placeholder="Search..."
-                                                className={`${St.input_search} bg-white  py-2 px-10 border border-gray-400 rounded shado`}
+                                                className={`${St.input_search} bg-white  py-2 px-10 border border-gray-400 rounded shadow`}
                                             />
                                             <span className="absolute inset-y-0 start-0 grid w-12 place-content-center">
                                                 <button type="button">
@@ -151,7 +151,7 @@ export default function Sidebar({ selectedMenu }) {
                                             </span>
                                         </div>
                                         <div>
-                                            <button className={`${St.btn_filter} bg-white py-2 px-5 border border-gray-400 rounded shadow`}>
+                                            {/* <button className={`${St.btn_filter} bg-white py-2 px-5 border border-gray-400 rounded shadow`}>
                                                 <div className="flex justify-center">
                                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#707070" className="size-6">
                                                         <path fillRule="evenodd" d="M3.792 2.938A49.069 49.069 0 0 1 12 2.25c2.797 0 5.54.236 8.209.688a1.857 1.857 0 0 1 1.541 1.836v1.044a3 3 0 0 1-.879 2.121l-6.182 6.182a1.5 1.5 0 0 0-.439 1.061v2.927a3 3 0 0 1-1.658 2.684l-1.757.878A.75.75 0 0 1 9.75 21v-5.818a1.5 1.5 0 0 0-.44-1.06L3.13 7.938a3 3 0 0 1-.879-2.121V4.774c0-.897.64-1.683 1.542-1.836Z" clipRule="evenodd" />
@@ -160,7 +160,29 @@ export default function Sidebar({ selectedMenu }) {
                                                         Filter
                                                     </div>
                                                 </div>
-                                            </button>
+                                            </button> */}
+                                            <div class="relative">
+
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#707070" className="absolute top-1/2 -translate-y-1/2 left-2 z-50 size-6">
+                                                    <path fillRule="evenodd" d="M3.792 2.938A49.069 49.069 0 0 1 12 2.25c2.797 0 5.54.236 8.209.688a1.857 1.857 0 0 1 1.541 1.836v1.044a3 3 0 0 1-.879 2.121l-6.182 6.182a1.5 1.5 0 0 0-.439 1.061v2.927a3 3 0 0 1-1.658 2.684l-1.757.878A.75.75 0 0 1 9.75 21v-5.818a1.5 1.5 0 0 0-.44-1.06L3.13 7.938a3 3 0 0 1-.879-2.121V4.774c0-.897.64-1.683 1.542-1.836Z" clipRule="evenodd" />
+                                                </svg>
+
+                                                <select id="Offer"
+                                                    class={`${St.btn_filter} pl-9 block w-full px-5 appearance-none`}>
+                                                    <option selected>Filter by</option>
+                                                    <option value="">By First name</option>
+                                                    <option value="">By Last name</option>
+                                                    <option value="">By Age</option>
+                                                    <option value="">By Home address</option>
+                                                    <option value="">By Latitude</option>
+                                                    <option value="">By Longitude</option>
+                                                </select>
+                                                <svg class="absolute top-1/2 -translate-y-1/3 right-1 z-50" width="16" height="16"
+                                                    viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M12.0002 5.99845L8.00008 9.99862L3.99756 5.99609" stroke="#111827" stroke-width="1.6"
+                                                        stroke-linecap="round" stroke-linejoin="round" />
+                                                </svg>
+                                            </div>
                                         </div>
                                         <div>
                                             <button onClick={() => toggleAddStudent()} className={St.btn_add}>
@@ -178,18 +200,23 @@ export default function Sidebar({ selectedMenu }) {
                                 </div>
                             </div>
                         </header>
-                        <div className="overflow-x-5">
-                            <div className="mx-auto max-w-screen-xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+                        <div className="overflow-x-auto">
+                            <div className="mx-auto  px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
                                 <table className="min-w-full divide-y-2 divide-gray-200 bg-white">
                                     <thead className={`${St.Header} ltr:text-left rtl:text-right`}>
                                         <tr>
-                                            <th className="ltr:text-left rtl:text-right whitespace-nowrap px-4 py-2">Firstname</th>
-                                            <th className="whitespace-nowrap px-4 py-2 text-gray-900">Lastname</th>
-                                            <th className="whitespace-nowrap px-4 py-2 text-gray-900">Age</th>
-                                            <th className="whitespace-nowrap px-4 py-2 text-gray-900">Gender</th>
-                                            <th className="whitespace-nowrap px-4 py-2 text-gray-900">Home Address</th>
-                                            <th className="whitespace-nowrap px-4 py-2 text-gray-900">Latitude</th>
-                                            <th className="whitespace-nowrap px-4 py-2 text-gray-900">Longitude</th>
+                                            <th className="sticky inset-y-0 start-0 bg-white px-4 py-2">
+                                                <label htmlFor="SelectAll" className="sr-only">Select All</label>
+
+                                                <input type="checkbox" id="SelectAll" className="size-5 mt-1.5 rounded border-gray-300" />
+                                            </th>
+                                            <th className={`${St.Header_FN} whitespace-nowrap px-4 py-2`}>Firstname</th>
+                                            <th className={`${St.Header_LN} whitespace-nowrap px-4 py-2`}>Lastname</th>
+                                            <th className={`${St.Header_Age} whitespace-nowrap px-4 py-2`}>Age</th>
+                                            <th className={`${St.Header_GD} whitespace-nowrap px-4 py-2`}>Gender</th>
+                                            <th className={`${St.Header_HAdress} whitespace-nowrap px-4 py-2`}>Home Address</th>
+                                            <th className={`${St.Header_Lat} whitespace-nowrap px-4 py-2`}>Latitude</th>
+                                            <th className={`${St.Header_Lng} whitespace-nowrap px-4 py-2`}>Longitude</th>
                                             <th className="whitespace-nowrap px-4 py-2 text-gray-900">Status</th>
                                             <th className="whitespace-nowrap px-4 py-2 text-gray-900">Action</th>
                                         </tr>
@@ -297,7 +324,6 @@ export default function Sidebar({ selectedMenu }) {
                         </ol>
                     </div>
                 );
-
         }
     }
 
@@ -317,7 +343,7 @@ export default function Sidebar({ selectedMenu }) {
 
             <button
                 onClick={toggleSidebar}
-                className={`fixed top-1/2 -translate-y-1/2 left-0 z-50 bg-white border border-gray-300 shadow-md p-3 rounded-full transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-[auto]" : "translate-x-0"
+                className={`fixed top-1/2 -translate-y-1/2 left-0 z-50 bg-white border border-gray-300 shadow-md p-3 rounded-full transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "translate-x-0"
                     }`}
             >
                 {isOpen ? (
@@ -487,7 +513,7 @@ export default function Sidebar({ selectedMenu }) {
                                 </div>
                             </Link>
                             <div className="py-5 px-24">
-                                <h2 className={style.title}>
+                                <h2 className={stAddList.title}>
                                     Add List of Student
                                 </h2>
                                 <div className={stAddList.p}>
@@ -497,25 +523,34 @@ export default function Sidebar({ selectedMenu }) {
                             <div className="sm:mx-auto sm:w-full sm:max-w-sm">
 
                             </div>
-                            <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-sm">
 
-                                <div class="flex items-center justify-center w-full">
-                                    <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-96 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
-                                        <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                                            <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                            <div className={stAddList.card_input}>
+                                <div className={stAddList.input_file}>
+                                    <label htmlFor="dropzone-file" >
+                                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                            {/* <svg className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
                                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
+                                            </svg> */}
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="#265CB3" className={stAddList.icon}>
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9.75v6.75m0 0-3-3m3 3 3-3m-8.25 6a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z" />
                                             </svg>
-                                            <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400">XLS,XLSX,CSV (Size limit: 1 MB)</p>
+
+                                            <p className={stAddList.text_file}>Drag and drop file here</p>
+                                            <div className={stAddList.text_filesup}>
+                                                <p>
+                                                    <span >Files supported: XLS,XLSX,CSV</span>
+                                                </p>
+                                                <p>Size limit: 1 MB</p>
+                                            </div>
                                         </div>
-                                        <input id="dropzone-file" type="file" class="hidden" />
+                                        <input id="dropzone-file" type="file" className="hidden" />
                                     </label>
                                 </div>
                             </div>
                         </div>
-                        <div className="flex justify-center space-x-4 mt-5">
-                            <button className={style.btn_add}>Add Student</button>
-                            <button className={style.btn_cancel} onClick={() => setAddListStudent(false)}>Cancel</button>
+                        <div className="flex justify-center space-x-4 mt-10">
+                            <button className={stAddList.btn_add}>Add Student</button>
+                            <button className={stAddList.btn_cancel} onClick={() => setAddListStudent(false)}>Cancel</button>
                         </div>
                     </main >
                 </div>

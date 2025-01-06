@@ -48,25 +48,23 @@
     opacity: 1;
 }
 
-.sticky-button {
-    position: fixed;
-    bottom: 10px; /* ระยะห่างจากขอบล่าง */
-    left: 50%;
-    transform: translateX(-50%); /* จัดให้ปุ่มอยู่ตรงกลาง */
-    background-color: white;
-    padding: 10px;
-    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-}
-
 .btn {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.btn:hover {
-    background-color: #0056b3;
+    /* Layout Properties */
+    top: 1001px;
+    left: 130px;
+    width: 300px;
+    height: 50px;
+    /* UI Properties */
+    background: var(--unnamed-color-007bff) 0% 0% no-repeat padding-box;
+    background: #007BFF 0% 0% no-repeat padding-box;
+    border-radius: 7px;
+    opacity: 1;
+    /* UI Properties */
+    font: var(--unnamed-font-style-normal) normal var(--unnamed-font-weight-normal) var(--unnamed-font-size-18)/var(--unnamed-line-spacing-22) var(--unnamed-font-family-roboto);
+    letter-spacing: var(--unnamed-character-spacing-0);
+    color: var(--unnamed-color-ffffff);
+    text-align: center;
+    font: normal normal normal 18px/22px Roboto;
+    letter-spacing: 0px;
+    color: #FFFFFF;
 }
