@@ -13,11 +13,11 @@ import Route from "./Route";
 import { getAuth } from "firebase/auth";
 import ModalDelete from "./ModalDelete";
 import app from "../../config";
+import HandleDelete from "../services/HandleDelete";
 
 export default function Sidebar({ selectedMenu }) {
     const [students, setStudents] = useState([]);
     const [isOpen, setIsOpen] = useState(true);
-    const [loading, setLoading] = useState(true); //สถานะการ load
     const [error, setError] = useState(null);
     const [addStudent, setAddStudent] = useState(false);
     const [addListStudent, setAddListStudent] = useState(false);
@@ -25,10 +25,25 @@ export default function Sidebar({ selectedMenu }) {
     const itemsPerPage = 10; // Number of items per page
     const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
     const [isEdit, setisEdit] = useState(false);
+    const [selectedUserId, setSelectedUserId] = useState(null);
 
-    const openModalDelete = () => setIsModalDeleteOpen(true);
-    const closeModalDelete = () => setIsModalDeleteOpen(false);
-
+    const openModalDelete = (id) => {
+        setSelectedUserId(id);
+        setIsModalDeleteOpen(true);
+      };
+    
+      const closeModalDelete = () => {
+        setIsModalDeleteOpen(false);
+        setSelectedUserId(null);
+      };
+    
+      const confirmDelete = async () => {
+        if (selectedUserId !== null) {
+          await HandleDelete(selectedUserId);
+          setStudents((prevStudents) => prevStudents.filter((student) => student.id !== selectedUserId));
+          closeModalDelete();
+        }
+      };
     // Calculate total pages
     const totalPages = Math.ceil(students.length / itemsPerPage);
 
@@ -63,9 +78,41 @@ export default function Sidebar({ selectedMenu }) {
         setisEdit(true)
     }
 
+    const [selectedAll, setSelectedAll] = useState(false);
+    const [selectedRows, setSelectedRows] = useState([]);
+
+    const handleSelectAll = (e) => {
+        const isChecked = e.target.checked;
+        setSelectedAll(isChecked);
+        if (isChecked) {
+            setSelectedRows(Students.map((student) => student.id));
+        } else {
+            setSelectedRows([]);
+        }
+    };
+
+    const handleRowSelect = (id) => {
+        setSelectedRows((prevSelected) =>
+            prevSelected.includes(id)
+                ? prevSelected.filter((rowId) => rowId !== id)
+                : [...prevSelected, id]
+        );
+    };
+
+    // // ลบแถวที่เลือก
+    // const deleteUser = async (id) => {
+    //     await HandleDelete(id)
+    //         setStudents((prevStudents) => prevStudents.filter((student) => student.id !== id))
+    // };
+
+    // // แก้ไขข้อมูลที่เลือก
+    // const handleEdit = () => {
+    //     alert("Edit selected rows: " + selectedRows.join(", "));
+    // };
+
     useEffect(() => {
         //functionดึงข้อมูลจากAPI
-        const fetchData = async () => {
+        const fetchDataStudent = async () => {
             try {
                 // กำหนด Token ที่จะส่งใน header
                 const auth = getAuth();
@@ -76,7 +123,7 @@ export default function Sidebar({ selectedMenu }) {
                 const idToken = await user.getIdToken();
                 console.log("JWT Token:", idToken);
 
-                const res = await fetch('http://192.168.3.246:8080/api/students', {
+                const res = await fetch(`http://192.168.3.124:8080/api/students`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${idToken}`,
@@ -96,12 +143,10 @@ export default function Sidebar({ selectedMenu }) {
 
             } catch (error) {
                 setError(error.message);  // จับ error และแสดง
-            } finally {
-                setLoading(false);  // ปิดสถานะ loading
-            }
+            } 
         };
 
-        fetchData();
+        fetchDataStudent();
     }, []);
 
     //show on sidebar
@@ -121,7 +166,7 @@ export default function Sidebar({ selectedMenu }) {
                 );
             case 'Students':
                 return (
-                    <div className="overflow-x-5">
+                    <div className="overflow-x-auto">
                         <header className="bg-white">
                             <div className="mx-auto px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
                                 <div className="flex flex-col gap-28 md:flex-row md:items-center md:justify-between">
@@ -161,15 +206,15 @@ export default function Sidebar({ selectedMenu }) {
                                                     </div>
                                                 </div>
                                             </button> */}
-                                            <div class="relative">
+                                            <div className="relative">
 
                                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#707070" className="absolute top-1/2 -translate-y-1/2 left-2 z-50 size-6">
                                                     <path fillRule="evenodd" d="M3.792 2.938A49.069 49.069 0 0 1 12 2.25c2.797 0 5.54.236 8.209.688a1.857 1.857 0 0 1 1.541 1.836v1.044a3 3 0 0 1-.879 2.121l-6.182 6.182a1.5 1.5 0 0 0-.439 1.061v2.927a3 3 0 0 1-1.658 2.684l-1.757.878A.75.75 0 0 1 9.75 21v-5.818a1.5 1.5 0 0 0-.44-1.06L3.13 7.938a3 3 0 0 1-.879-2.121V4.774c0-.897.64-1.683 1.542-1.836Z" clipRule="evenodd" />
                                                 </svg>
 
                                                 <select id="Offer"
-                                                    class={`${St.btn_filter} pl-9 block w-full px-5 appearance-none`}>
-                                                    <option selected>Filter by</option>
+                                                    className={`${St.btn_filter} pl-9 block w-full px-5 appearance-none`}>
+                                                    <option value="">Filter by</option>
                                                     <option value="">By First name</option>
                                                     <option value="">By Last name</option>
                                                     <option value="">By Age</option>
@@ -177,10 +222,10 @@ export default function Sidebar({ selectedMenu }) {
                                                     <option value="">By Latitude</option>
                                                     <option value="">By Longitude</option>
                                                 </select>
-                                                <svg class="absolute top-1/2 -translate-y-1/3 right-1 z-50" width="16" height="16"
+                                                <svg className="absolute top-1/2 -translate-y-1/3 right-1 z-50" width="16" height="16"
                                                     viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M12.0002 5.99845L8.00008 9.99862L3.99756 5.99609" stroke="#111827" stroke-width="1.6"
-                                                        stroke-linecap="round" stroke-linejoin="round" />
+                                                    <path d="M12.0002 5.99845L8.00008 9.99862L3.99756 5.99609" stroke="#111827" strokeWidth="1.6"
+                                                        strokeLinecap="round" strokeLinejoin="round" />
                                                 </svg>
                                             </div>
                                         </div>
@@ -202,13 +247,49 @@ export default function Sidebar({ selectedMenu }) {
                         </header>
                         <div className="overflow-x-auto">
                             <div className="mx-auto  px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+                                {/* Dropdown เมื่อเลือก Checkbox */}
+                                {selectedRows.length > 0 && (
+                                    <div className="fixed top-52 left-10 z-10 bg-white border border-gray-300 rounded shadow-md p-4">
+                                        <div className="flex items-center space-x-4">
+                                            <button
+                                                className="flex items-center space-x-2 text-blue-500 hover:text-blue-700"
+                                                onClick={handleEdit}
+                                            >
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    className="w-5 h-5"
+                                                    fill="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <path d="M21.731 2.269a2.625 2.625 0 0 0-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 0 0 0-3.712ZM19.513 8.199l-3.712-3.712-8.4 8.4a5.25 5.25 0 0 0-1.32 2.214l-.8 2.685a.75.75 0 0 0 .933.933l2.685-.8a5.25 5.25 0 0 0 2.214-1.32l8.4-8.4Z" />
+                                                </svg>
+                                                <span>Edit</span>
+                                            </button>
+                                            <button
+                                                className="flex items-center space-x-2 text-red-500 hover:text-red-700"
+                                                onClick={HandleDelete}
+                                            >
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    className="w-5 h-5"
+                                                    fill="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <path d="M16.5 4.478v.227a48.816 48.816 0 0 1 3.878.512.75.75 0 1 1-.256 1.478l-.209-.035-1.005 13.07a3 3 0 0 1-2.991 2.77H8.084a3 3 0 0 1-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 0 1-.256-1.478A48.567 48.567 0 0 1 7.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 0 1 3.369 0c1.603.051 2.815 1.387 2.815 2.951Zm-6.136-1.452a51.196 51.196 0 0 1 3.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 0 0-6 0v-.113c0-.794.609-1.428 1.364-1.452Zm-.355 5.945a.75.75 0 1 0-1.5.058l.347 9a.75.75 0 1 0 1.499-.058l-.346-9Zm5.48.058a.75.75 0 1 0-1.498-.058l-.347 9a.75.75 0 0 0 1.5.058l.345-9Z" />
+                                                </svg>
+                                                <span>Delete</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+
                                 <table className="min-w-full divide-y-2 divide-gray-200 bg-white">
                                     <thead className={`${St.Header} ltr:text-left rtl:text-right`}>
                                         <tr>
                                             <th className="sticky inset-y-0 start-0 bg-white px-4 py-2">
                                                 <label htmlFor="SelectAll" className="sr-only">Select All</label>
 
-                                                <input type="checkbox" id="SelectAll" className="size-5 mt-1.5 rounded border-gray-300" />
+                                                <input type="checkbox" id="SelectAll" className="size-5 mt-1.5 rounded border-gray-300" onChange={handleSelectAll} checked={selectedAll} />
                                             </th>
                                             <th className={`${St.Header_FN} whitespace-nowrap px-4 py-2`}>Firstname</th>
                                             <th className={`${St.Header_LN} whitespace-nowrap px-4 py-2`}>Lastname</th>
@@ -217,7 +298,7 @@ export default function Sidebar({ selectedMenu }) {
                                             <th className={`${St.Header_HAdress} whitespace-nowrap px-4 py-2`}>Home Address</th>
                                             <th className={`${St.Header_Lat} whitespace-nowrap px-4 py-2`}>Latitude</th>
                                             <th className={`${St.Header_Lng} whitespace-nowrap px-4 py-2`}>Longitude</th>
-                                            <th className="whitespace-nowrap px-4 py-2 text-gray-900">Status</th>
+                                            <th className={`${St.Header_Status} whitespace-nowrap px-4 py-2`}>Status</th>
                                             <th className="whitespace-nowrap px-4 py-2 text-gray-900">Action</th>
                                         </tr>
                                     </thead>
@@ -225,16 +306,21 @@ export default function Sidebar({ selectedMenu }) {
                                     <tbody className={`${St.text_Student} divide-y divide-gray-200`}>
                                         {Students.map((student) => (
                                             <tr key={student.id}>
+                                                <th className="sticky inset-y-0 start-0 bg-white px-4 py-2">
+                                                    <label htmlFor="SelectAll" className="sr-only">Select All</label>
+
+                                                    <input type="checkbox" id="SelectAll" className="size-5 mt-1.5 rounded border-gray-300" checked={selectedRows.includes(student.id)} onChange={() => handleRowSelect(student.id)} />
+                                                </th>
                                                 <td className="whitespace-nowrap px-4 py-2">{student.first_name} </td>
                                                 <td className="whitespace-nowrap px-4 py-2">{student.last_name}</td>
-                                                <td className="whitespace-nowrap px-4 py-2">{student.age}</td>
+                                                <td className={`${St.detail_Age} whitespace-nowrap px-4 py-2`}>{student.age}</td>
                                                 <td className="whitespace-nowrap px-4 py-2">{student.gender}</td>
                                                 <td className="whitespace-nowrap px-4 py-2">{student.address}</td>
-                                                <td className="whitespace-nowrap px-4 py-2">{student.latitude}</td>
-                                                <td className="whitespace-nowrap px-4 py-2">{student.longitude}</td>
-                                                <td className="whitespace-nowrap px-4 py-2">{student.status}</td>
+                                                <td className={`${St.detail_Lat} whitespace-nowrap px-4 py-2`}>{student.latitude}</td>
+                                                <td className={`${St.detail_Lng} whitespace-nowrap px-4 py-2`}>{student.longitude}</td>
+                                                <td className={`${St.detail_status} whitespace-nowrap px-4 py-2`}>{student.status}</td>
                                                 <td className="whitespace-nowrap px-4 py-2">
-                                                    <div className="flex space-x-3">
+                                                    <div className="flex space-x-3 ml-5">
                                                         <button onClick={toggleEditPage}>
                                                             <svg
                                                                 xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#007BFF" className="size-6">
@@ -242,7 +328,7 @@ export default function Sidebar({ selectedMenu }) {
                                                                 <path d="M5.25 5.25a3 3 0 0 0-3 3v10.5a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3V13.5a.75.75 0 0 0-1.5 0v5.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5V8.25a1.5 1.5 0 0 1 1.5-1.5h5.25a.75.75 0 0 0 0-1.5H5.25Z" />
                                                             </svg>
                                                         </button>
-                                                        <button onClick={openModalDelete} >
+                                                        <button onClick={() => openModalDelete(student.id)} >
                                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#dc2626" className="size-6">
                                                                 <path fillRule="evenodd" d="M16.5 4.478v.227a48.816 48.816 0 0 1 3.878.512.75.75 0 1 1-.256 1.478l-.209-.035-1.005 13.07a3 3 0 0 1-2.991 2.77H8.084a3 3 0 0 1-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 0 1-.256-1.478A48.567 48.567 0 0 1 7.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 0 1 3.369 0c1.603.051 2.815 1.387 2.815 2.951Zm-6.136-1.452a51.196 51.196 0 0 1 3.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 0 0-6 0v-.113c0-.794.609-1.428 1.364-1.452Zm-.355 5.945a.75.75 0 1 0-1.5.058l.347 9a.75.75 0 1 0 1.499-.058l-.346-9Zm5.48.058a.75.75 0 1 0-1.498-.058l-.347 9a.75.75 0 0 0 1.5.058l.345-9Z" clipRule="evenodd" />
                                                             </svg>
@@ -424,8 +510,8 @@ export default function Sidebar({ selectedMenu }) {
                                         <label htmlFor="Gender" >
                                             Gender
                                         </label>
-                                        <select id="countries" class={`${style.select} block`}>
-                                            <option selected>Select gender</option>
+                                        <select id="countries" className={`${style.select} block`}>
+                                            <option value="">Select gender</option>
                                             <option value="">male</option>
                                             <option value="">Female</option>
                                         </select>
@@ -449,8 +535,8 @@ export default function Sidebar({ selectedMenu }) {
                                         <label htmlFor="Status" >
                                             Status
                                         </label>
-                                        <select id="countries" class={`${style.select} block`}>
-                                            <option selected>Select status</option>
+                                        <select id="countries" className={`${style.select} block`}>
+                                            <option value="">Select status</option>
                                             <option value="">1</option>
                                             <option value="">2</option>
                                         </select>
@@ -556,14 +642,14 @@ export default function Sidebar({ selectedMenu }) {
                 </div>
             )}
 
-            <ModalDelete isOpen={isModalDeleteOpen} onClose={closeModalDelete}>
+            <ModalDelete isOpen={isModalDeleteOpen} onClose={closeModalDelete} onConfirm={confirmDelete}>
             </ModalDelete>
 
             {isEdit && (
                 <div className={`${styles.root_login}`}>
                     <main className={style.card}>
                         <div className="flex min-h-full flex-1 flex-col justify-center px-4 py-8 lg:py-12">
-                            <Link href="" onClick={() => setAddStudent(false)} className={style.link}>
+                            <Link href="" onClick={() => setisEdit(false)} className={style.link}>
                                 <div className='flex px-10'>
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
@@ -575,10 +661,10 @@ export default function Sidebar({ selectedMenu }) {
                             </Link>
                             <div className="py-10 px-24">
                                 <h2 className={style.title}>
-                                    Add Student
+                                   Edit
                                 </h2>
                                 <div className={style.p}>
-                                    Fill out the form below to add a new student to the system.
+                                    Edit the student's details, including name and home address
                                 </div>
                             </div>
                             <div
@@ -631,7 +717,7 @@ export default function Sidebar({ selectedMenu }) {
                                         <label htmlFor="Gender" >
                                             Gender
                                         </label>
-                                        <select id="countries" class={`${style.select} block`}>
+                                        <select id="countries" className={`${style.select} block`}>
                                             <option selected>Select gender</option>
                                             <option value="">male</option>
                                             <option value="">Female</option>
@@ -656,8 +742,8 @@ export default function Sidebar({ selectedMenu }) {
                                         <label htmlFor="Status" >
                                             Status
                                         </label>
-                                        <select id="countries" class={`${style.select} block`}>
-                                            <option selected>Select status</option>
+                                        <select id="countries" className={`${style.select} block`}>
+                                            <option value="">Select status</option>
                                             <option value="">1</option>
                                             <option value="">2</option>
                                         </select>
@@ -695,7 +781,7 @@ export default function Sidebar({ selectedMenu }) {
                                         <button
                                             className={style.btn_add}
                                         >
-                                            Add Student
+                                            Save
                                         </button>
                                     </div>
                                 </form>

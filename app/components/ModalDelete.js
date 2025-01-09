@@ -1,5 +1,5 @@
 import styles from '../css/delete.module.css';
-const ModalDelete = ({ isOpen, onClose }) => {
+const ModalDelete = ({ isOpen, onClose ,onConfirm }) => {
     if (!isOpen) return null;
 
     return (
@@ -36,7 +36,7 @@ const ModalDelete = ({ isOpen, onClose }) => {
                         <div className="px-6 py-4">
                             <div className="grid gap-2 grid-cols-[repeat(auto-fit,minmax(0,1fr))]">
 
-                                <button type="submit"
+                                <button type="button" onClick={onConfirm}
                                     className={`${styles.btn_delete} inline-flex items-center justify-center`}>
 
                                     <span className="flex items-center gap-1">

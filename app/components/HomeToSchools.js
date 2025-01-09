@@ -13,6 +13,23 @@ export default function HomeToSchools() {
     // const [query, setQuery] = useState("");
 
 
+    const [value, setValue] = useState(0);
+
+    const handleInputChange = (e) => {
+        const inputValue = e.target.value;
+
+        if (inputValue === "" || (!isNaN(inputValue) && Number(inputValue) >= 0)) {
+            setValue(inputValue); // อัปเดตค่าใหม่ (รวมถึงกรณีช่องว่าง)
+        }
+    };
+
+    const handleIncrement = () => {
+        setValue((preValue) => (preValue === "" ? 1 : Number(preValue) + 1));
+    };
+
+    const handleDecrement = () => {
+        if (value > 0) setValue(value - 1)
+    };
     // const handleSearch = async () => {
     //     if (!query.trim()) return;
 
@@ -168,26 +185,63 @@ export default function HomeToSchools() {
             {currentPageHome === 'Home To Schools' && (
                 <div>
                     <div className="relative h-screen flex flex-col overflow-y-scroll">
-
-                        <div className="flex  items-center gap-2">
+                        <div className="flex flex-col items-start space-y-1 ">
+                            <span className={styles.text_date}>Tuesday, January 2025</span>
+                            <div className="flex items-center">
+                                {/*                                 
+                                <input
+                                    className={`${styles.number_input} mt-2 text-center`}
+                                    value={value}
+                                    onChange={handleInputChange}
+                                    min="0"
+                                />
+                                <div className={`${styles.number_btn} p-1 mt-2 flex flex-col items-center`}>
+                                    <button
+                                        onClick={handleIncrement}
+                                        className="disabled:opacity-50"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="size-5">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+                                        </svg>
+                                    </button>
+                                    <button
+                                        onClick={handleDecrement}
+                                        className="disabled:opacity-50"
+                                        disabled={value <= 0}
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="size-5">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                        </svg>
+                                    </button>
+                                </div> */}
+                                <form className="max-w-sm mx-auto mt-3">
+                                    <label htmlFor="number-input" className={`${styles.number} block`}>Number of cars:</label>
+                                    <input type="number" id="number-input" min="0" className={`${styles.number_input} mt-2 `} required />
+                                </form>
+                            </div>
+                        </div>
+                        <div className="mt-5">
+                            <span className={styles.text_student}>Students</span>
+                        </div>
+                        <div className="flex mt-2 mb-3 items-center gap-2">
                             <div className="relative">
                                 <label htmlFor="Search" className="sr-only"> Search </label>
                                 <input
                                     type="text"
                                     id="Search"
-                                    placeholder="Search..."
+                                    placeholder="Name or ID"
                                     className={`${styles.input_search} bg-white  py-2 px-10 border border-gray-400 rounded shado`}
                                 />
                                 <span className="absolute inset-y-0 start-0 grid w-12 place-content-center">
                                     <button type="button">
                                         <span className="sr-only">Search</span>
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#00000029" className="size-6">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#00000029" className="size-6 b">
                                             <path fillRule="evenodd" d="M10.5 3.75a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM2.25 10.5a8.25 8.25 0 1 1 14.59 5.28l4.69 4.69a.75.75 0 1 1-1.06 1.06l-4.69-4.69A8.25 8.25 0 0 1 2.25 10.5Z" clipRule="evenodd" />
                                         </svg>
                                     </button>
                                 </span>
                             </div>
-                            <div>
+                            {/* <div>
                                 <button className={`${styles.btn_filter}`}>
                                     <div className="flex justify-center">
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#00000029" className="size-6">
@@ -195,23 +249,23 @@ export default function HomeToSchools() {
                                         </svg>
                                     </div>
                                 </button>
-                            </div>
+                            </div> */}
                         </div>
 
                         {Data.map((item) => (
-                            <div key={item.id} className={`${styles.card} flex w-full p-4 max-w-lg flex-col rounded-lg bg-white shadow-sm border border-slate-200 my-2 hover:bg-gray-100`}>
-                                <div className="flex items-center gap-4 text-slate-800">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-10">
+                            <div key={item.id} className={`${styles.card} flex w-full my-1 p-4 max-w-lg flex-col rounded-lg bg-white shadow-sm border border-slate-200 hover:bg-gray-100`}>
+                                <div className="flex items-center gap-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#265CB3" className="size-10">
                                         <path fillRule="evenodd" d="m11.54 22.351.07.04.028.016a.76.76 0 0 0 .723 0l.028-.015.071-.041a16.975 16.975 0 0 0 1.144-.742 19.58 19.58 0 0 0 2.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 0 0-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 0 0 2.682 2.282 16.975 16.975 0 0 0 1.145.742ZM12 13.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" clipRule="evenodd" />
                                     </svg>
 
                                     <div className="flex w-full flex-col">
                                         <div className="flex items-center justify-between">
-                                            <h5 className="text-xl font-semibold text-slate-800">
+                                            <h5 className={styles.text_name}>
                                                 {item.name}
                                             </h5>
                                         </div>
-                                        <p className="text-xs uppercase font-bold text-slate-500 mt-0.5">
+                                        <p className={styles.text_adress}>
                                             {item.address}
                                         </p>
                                     </div>
@@ -225,7 +279,7 @@ export default function HomeToSchools() {
 
                     <div className="bg-white p-5 sticky bottom-0 left-0 right-0 flex justify-center ">
                         <button className={`${styles.btn} w-full justify-center`} onClick={() => setCurrentPageHome('Routes')}>
-                            View route directions
+                            Optimize Route
                         </button>
                     </div>
 
@@ -234,22 +288,27 @@ export default function HomeToSchools() {
 
             {currentPageHome === 'Routes' && (
                 <div>
-                    <svg onClick={() => setCurrentPageHome('Home To Schools')} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
-                        <path fillRule="evenodd" d="M7.28 7.72a.75.75 0 0 1 0 1.06l-2.47 2.47H21a.75.75 0 0 1 0 1.5H4.81l2.47 2.47a.75.75 0 1 1-1.06 1.06l-3.75-3.75a.75.75 0 0 1 0-1.06l3.75-3.75a.75.75 0 0 1 1.06 0Z" clipRule="evenodd" />
-                    </svg>
+                    <div className="flex items-center p-2 space-x-48">
+                        <svg onClick={() => setCurrentPageHome('Home To Schools')} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-10">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                        </svg>
 
-                    <h1 className="text-xl font-bold">Routes</h1>
+                        <h1 className={`${styles.title} `}>Routes</h1>
+                    </div>
                     <hr></hr>
-                    <div className={`${styles.card} flex w-full p-4 max-w-lg flex-col rounded-lg bg-white shadow-sm border border-slate-200 my-6 hover:bg-gray-100`} onClick={() => setCurrentPageHome('RoutesNumber')}>
-                        <div className="flex items-center gap-4 text-slate-800">
+                    <div className={`${styles.card1} flex w-full p-4 max-w-lg flex-col rounded-lg bg-white shadow-sm border border-slate-200 my-6 hover:bg-gray-100`} onClick={() => setCurrentPageHome('RoutesNumber')}>
+                        <div className="flex items-center gap-4 py-2">
                             <div className="flex w-full flex-col">
-                                <div className="flex items-center justify-between">
-                                    <h5 className="text-xl font-semibold text-slate-800">
+                                <div className="flex items-center">
+                                    <div className={`w-10 h-10 bg-orange-300 rounded`}></div>
+                                    <h5 className={`${styles.text_card} px-5`}>
                                         Routes1
                                     </h5>
                                 </div>
-
                             </div>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-10">
+                                <path fillRule="evenodd" d="M16.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z" clipRule="evenodd" />
+                            </svg>
                         </div>
                     </div>
                 </div>
@@ -257,12 +316,39 @@ export default function HomeToSchools() {
 
             {currentPageHome === 'RoutesNumber' && (
                 <div>
-                    <svg onClick={() => setCurrentPageHome('Home To Schools')} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
-                        <path fillRule="evenodd" d="M7.28 7.72a.75.75 0 0 1 0 1.06l-2.47 2.47H21a.75.75 0 0 1 0 1.5H4.81l2.47 2.47a.75.75 0 1 1-1.06 1.06l-3.75-3.75a.75.75 0 0 1 0-1.06l3.75-3.75a.75.75 0 0 1 1.06 0Z" clipRule="evenodd" />
-                    </svg>
+                    <div className="flex items-center p-2 space-x-36">
+                        <svg onClick={() => setCurrentPageHome('Routes')} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="size-10">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                        </svg>
+                        <div className="flex items-center p-2 space-x-2">
+                            <div className={`w-8 h-8 bg-orange-300 rounded`}></div>
+                            <h1 className={`${styles.title}`}>Routes</h1>
+                        </div>
+                    </div>
+                    <hr className="mb-5"></hr>
+                    {Data.map((item) => (
+                        <div key={item.id} className={`${styles.card} flex w-full my-2 p-4 max-w-lg flex-col rounded-lg bg-white shadow-sm border border-slate-200 hover:bg-gray-100`}>
+                            <div className="flex items-center gap-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"  fill="#265CB3" className="size-10">
+                                    <path fillRule="evenodd" d="m11.54 22.351.07.04.028.016a.76.76 0 0 0 .723 0l.028-.015.071-.041a16.975 16.975 0 0 0 1.144-.742 19.58 19.58 0 0 0 2.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 0 0-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 0 0 2.682 2.282 16.975 16.975 0 0 0 1.145.742ZM12 13.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" clipRule="evenodd" />
+                                </svg>
 
-                    <h1 className="text-xl font-bold">Routes 5</h1>
-                    <hr></hr>
+                                <div className="flex w-full flex-col">
+                                    <div className="flex items-center justify-between">
+                                        <h5 className={styles.text_name}>
+                                            {item.name}
+                                        </h5>
+                                    </div>
+                                    <p className={styles.text_adress}>
+                                        {item.address}
+                                    </p>
+                                </div>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-10">
+                                    <path fillRule="evenodd" d="M16.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z" clipRule="evenodd" />
+                                </svg>
+                            </div>
+                        </div>
+                    ))}
                 </div>
             )}
         </div>

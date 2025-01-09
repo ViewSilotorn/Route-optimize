@@ -1,49 +1,25 @@
 import { useEffect, useState } from 'react';
 import styles from '../css/route.module.css';
-import { getAuth } from "firebase/auth";
+import { fetchTrips } from '../services/tripService';
 
 export default function Route() {
     const [Trips, setTrips] = useState([]);
-    const [loading, setLoading] = useState(true); //สถานะการ load
     const [error, setError] = useState(null);
+
     useEffect(() => {
         //functionดึงข้อมูลจากAPI
-        const fetchDataTrips = async () => {
+        const fetchData = async () => {
             try {
-                // กำหนด Token ที่จะส่งใน header
-                const auth = getAuth();
-                const user = auth.currentUser;
-
-                if (!user) throw new Error("User is not logged in");
-
-                const idToken = await user.getIdToken();
-                console.log("JWT Token:", idToken);
-
-                const res = await fetch('http://192.168.3.246:8080/api/trips', {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${idToken}`,
-                        'Content-Type': 'application/json',
-                    },
-                });
-
-                console.log('Response Status:', res.status);
-
-                if (!res.ok) {
-                    throw new Error('Failed to fetch students');
-                }
-
-                const data = await res.json();
-                console.log(data)
-                setTrips(data);  // อัพเดตข้อมูลที่ดึงมา
+                const data = await fetchTrips();
+                console.log('Loaded Trips:', data); // ตรวจสอบข้อมูล
+                setTrips(data); // ตั้งค่า state
             } catch (error) {
-                setError(error.message);  // จับ error และแสดง
-            } finally {
-                setLoading(false);  // ปิดสถานะ loading
-            }
+                console.error('Error:', error.message);
+                setError(error.message);
+            } 
         };
 
-        fetchDataTrips();
+        fetchData();
     }, []);
 
     return (
