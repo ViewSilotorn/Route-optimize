@@ -11,3 +11,20 @@ export const fetchPageData = async (page) => {
         throw error;
     }
 }
+
+//  useEffect(() => {
+//         const fetchDataStudent = async () => {
+//             try {
+//                 const data = await fetchPageData(currentPage);
+//                 console.log('Loaded Trips:', data); // ตรวจสอบข้อมูล
+//                 setStudents(data.students);  // ตั้งค่าข้อมูลนักเรียน
+//                 setTotalCount(data.total_count);  // ตั้งค่าจำนวนรวมของนักเรียน
+//                 setPerPage(data.per_page);  // ตั้งค่าจำนวนนักเรียนต่อหน้า
+//             } catch (error) {
+//                 console.error("Error fetching student data:", error);
+//                 setError(error.message);
+//             }
+//         };
+
+//         fetchDataStudent();
+//     }, [currentPage]);

@@ -22,40 +22,61 @@ export default function Sidebar({ selectedMenu }) {
     const [addStudent, setAddStudent] = useState(false);
     const [addListStudent, setAddListStudent] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10; // Number of items per page
+    const [totalCount, setTotalCount] = useState(0);
+    const [perPage, setPerPage] = useState(10);
     const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
     const [isEdit, setisEdit] = useState(false);
     const [selectedUserId, setSelectedUserId] = useState(null);
 
+    useEffect(() => {
+        const fetchDataStudent = async () => {
+            try {
+                const auth = getAuth();
+                const user = auth.currentUser;
+
+                if (!user) throw new Error("User is not logged in");
+
+                const idToken = await user.getIdToken();
+                console.log("JWT Token11:", idToken);
+
+                const res = await fetch(`http://192.168.3.124:8080/api/students/page/${currentPage}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${idToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (!res.ok) throw new Error('Failed to fetch students');
+
+                const data = await res.json();
+                console.log(data);
+                setStudents(data.students);  // ตั้งค่าข้อมูลนักเรียน
+                setTotalCount(data.total_count);  // ตั้งค่าจำนวนรวมของนักเรียน
+                setPerPage(data.per_page);  // ตั้งค่าจำนวนนักเรียนต่อหน้า
+            } catch (error) {
+                setError(error.message);
+            }
+        };
+
+        fetchDataStudent();
+    }, [currentPage]);
+
     const openModalDelete = (id) => {
         setSelectedUserId(id);
         setIsModalDeleteOpen(true);
-      };
-    
-      const closeModalDelete = () => {
+    };
+
+    const closeModalDelete = () => {
         setIsModalDeleteOpen(false);
         setSelectedUserId(null);
-      };
-    
-      const confirmDelete = async () => {
+    };
+
+    const confirmDelete = async () => {
         if (selectedUserId !== null) {
-          await HandleDelete(selectedUserId);
-          setStudents((prevStudents) => prevStudents.filter((student) => student.id !== selectedUserId));
-          closeModalDelete();
-        }
-      };
-    // Calculate total pages
-    const totalPages = Math.ceil(students.length / itemsPerPage);
-
-    // Get current page's students
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const Students = students.slice(startIndex, endIndex);
-
-    // Handle page change
-    const handlePageChange = (page) => {
-        if (page >= 1 && page <= totalPages) {
-            setCurrentPage(page);
+            await HandleDelete(selectedUserId);
+            setStudents((prevStudents) => prevStudents.filter((student) => student.id !== selectedUserId));
+            closeModalDelete();
         }
     };
 
@@ -85,7 +106,7 @@ export default function Sidebar({ selectedMenu }) {
         const isChecked = e.target.checked;
         setSelectedAll(isChecked);
         if (isChecked) {
-            setSelectedRows(Students.map((student) => student.id));
+            setSelectedRows(students.map((student) => student.id));
         } else {
             setSelectedRows([]);
         }
@@ -105,49 +126,15 @@ export default function Sidebar({ selectedMenu }) {
     //         setStudents((prevStudents) => prevStudents.filter((student) => student.id !== id))
     // };
 
-    // // แก้ไขข้อมูลที่เลือก
-    // const handleEdit = () => {
-    //     alert("Edit selected rows: " + selectedRows.join(", "));
-    // };
+    // แก้ไขข้อมูลที่เลือก
+    const handleEdit = () => {
+        alert("Edit selected rows: " + selectedRows.join(", "));
+    };
 
-    useEffect(() => {
-        //functionดึงข้อมูลจากAPI
-        const fetchDataStudent = async () => {
-            try {
-                // กำหนด Token ที่จะส่งใน header
-                const auth = getAuth();
-                const user = auth.currentUser;
-
-                if (!user) throw new Error("User is not logged in");
-
-                const idToken = await user.getIdToken();
-                console.log("JWT Token:", idToken);
-
-                const res = await fetch(`http://192.168.3.124:8080/api/students`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${idToken}`,
-                        'Content-Type': 'application/json',
-                    },
-                });
-
-                console.log('Response Status:', res.status);
-
-                if (!res.ok) {
-                    throw new Error('Failed to fetch students');
-                }
-
-                const data = await res.json();
-                console.log(data)
-                setStudents(data);  // อัพเดตข้อมูลที่ดึงมา
-
-            } catch (error) {
-                setError(error.message);  // จับ error และแสดง
-            } 
-        };
-
-        fetchDataStudent();
-    }, []);
+    const totalPages = Math.ceil(totalCount / perPage);
+    const maxButtonsToShow = 10; // จำนวนปุ่มที่ต้องการแสดง
+    const startPage = Math.floor((currentPage - 1) / maxButtonsToShow) * maxButtonsToShow + 1;
+    const endPage = Math.min(startPage + maxButtonsToShow - 1, totalPages);
 
     //show on sidebar
     const getMenuContent = (menu) => {
@@ -168,7 +155,7 @@ export default function Sidebar({ selectedMenu }) {
                 return (
                     <div className="overflow-x-auto">
                         <header className="bg-white">
-                            <div className="mx-auto px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+                            <div className="px-4 py-6">
                                 <div className="flex flex-col gap-28 md:flex-row md:items-center md:justify-between">
                                     <div>
                                         <h1 className={St.text}>Students</h1>
@@ -245,81 +232,69 @@ export default function Sidebar({ selectedMenu }) {
                                 </div>
                             </div>
                         </header>
-                        <div className="overflow-x-auto">
-                            <div className="mx-auto  px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
-                                {/* Dropdown เมื่อเลือก Checkbox */}
-                                {selectedRows.length > 0 && (
-                                    <div className="fixed top-52 left-10 z-10 bg-white border border-gray-300 rounded shadow-md p-4">
-                                        <div className="flex items-center space-x-4">
-                                            <button
-                                                className="flex items-center space-x-2 text-blue-500 hover:text-blue-700"
-                                                onClick={handleEdit}
-                                            >
-                                                <svg
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    className="w-5 h-5"
-                                                    fill="currentColor"
-                                                    viewBox="0 0 24 24"
-                                                >
-                                                    <path d="M21.731 2.269a2.625 2.625 0 0 0-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 0 0 0-3.712ZM19.513 8.199l-3.712-3.712-8.4 8.4a5.25 5.25 0 0 0-1.32 2.214l-.8 2.685a.75.75 0 0 0 .933.933l2.685-.8a5.25 5.25 0 0 0 2.214-1.32l8.4-8.4Z" />
-                                                </svg>
-                                                <span>Edit</span>
-                                            </button>
-                                            <button
-                                                className="flex items-center space-x-2 text-red-500 hover:text-red-700"
-                                                onClick={HandleDelete}
-                                            >
-                                                <svg
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    className="w-5 h-5"
-                                                    fill="currentColor"
-                                                    viewBox="0 0 24 24"
-                                                >
-                                                    <path d="M16.5 4.478v.227a48.816 48.816 0 0 1 3.878.512.75.75 0 1 1-.256 1.478l-.209-.035-1.005 13.07a3 3 0 0 1-2.991 2.77H8.084a3 3 0 0 1-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 0 1-.256-1.478A48.567 48.567 0 0 1 7.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 0 1 3.369 0c1.603.051 2.815 1.387 2.815 2.951Zm-6.136-1.452a51.196 51.196 0 0 1 3.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 0 0-6 0v-.113c0-.794.609-1.428 1.364-1.452Zm-.355 5.945a.75.75 0 1 0-1.5.058l.347 9a.75.75 0 1 0 1.499-.058l-.346-9Zm5.48.058a.75.75 0 1 0-1.498-.058l-.347 9a.75.75 0 0 0 1.5.058l.345-9Z" />
-                                                </svg>
-                                                <span>Delete</span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                )}
+                        {selectedRows.length > 0 && (
+                            <div className="flex items-center space-x-4 px-14">
+                                <button
+                                    className="flex items-center space-x-2 text-blue-500 hover:text-blue-700"
+                                    onClick={() => toggleEditPage()}
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                                    </svg>
 
-                                <table className="min-w-full divide-y-2 divide-gray-200 bg-white">
-                                    <thead className={`${St.Header} ltr:text-left rtl:text-right`}>
-                                        <tr>
+                                    <span>Edit</span>
+                                </button>
+                                <button
+                                    className="flex items-center space-x-2 text-red-500 hover:text-red-700"
+                                    onClick={() => openModalDelete()}
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                    </svg>
+
+                                    <span>Delete</span>
+                                </button>
+                            </div>
+                        )}
+                        <div className="px-8">
+                            {/* Dropdown เมื่อเลือก Checkbox */}
+                            <table className="min-w-full divide-y-2 divide-gray-200 bg-white">
+                                <thead className={`${St.Header} ltr:text-left rtl:text-right`}>
+                                    <tr>
+                                        <th className="sticky inset-y-0 start-0 bg-white px-4 py-2">
+                                            <label htmlFor="SelectAll" className="sr-only">Select All</label>
+
+                                            <input type="checkbox" id="SelectAll" className="size-5 mt-1.5 rounded border-gray-300" onChange={handleSelectAll} checked={selectedAll} />
+                                        </th>
+                                        <th className={`${St.Header_FN} whitespace-nowrap px-4 py-2`}>Firstname</th>
+                                        <th className={`${St.Header_LN} whitespace-nowrap px-4 py-2`}>Lastname</th>
+                                        <th className={`${St.Header_Age} whitespace-nowrap px-4 py-2`}>Age</th>
+                                        <th className={`${St.Header_GD} whitespace-nowrap px-4 py-2`}>Gender</th>
+                                        <th className={`${St.Header_HAdress} whitespace-nowrap px-4 py-2`}>Home Address</th>
+                                        <th className={`${St.Header_Lat} whitespace-nowrap px-4 py-2`}>Latitude</th>
+                                        <th className={`${St.Header_Lng} whitespace-nowrap px-4 py-2`}>Longitude</th>
+                                        <th className={`${St.Header_Status} whitespace-nowrap px-4 py-2`}>Status</th>
+                                        {/* <th className="whitespace-nowrap px-4 py-2 text-gray-900">Action</th> */}
+                                    </tr>
+                                </thead>
+
+                                <tbody className={`${St.text_Student} divide-y divide-gray-200`}>
+                                    {students.map((student) => (
+                                        <tr key={student.id}>
                                             <th className="sticky inset-y-0 start-0 bg-white px-4 py-2">
                                                 <label htmlFor="SelectAll" className="sr-only">Select All</label>
 
-                                                <input type="checkbox" id="SelectAll" className="size-5 mt-1.5 rounded border-gray-300" onChange={handleSelectAll} checked={selectedAll} />
+                                                <input type="checkbox" id="SelectAll" className="size-5 mt-1.5 rounded border-gray-300" checked={selectedRows.includes(student.id)} onChange={() => handleRowSelect(student.id)} />
                                             </th>
-                                            <th className={`${St.Header_FN} whitespace-nowrap px-4 py-2`}>Firstname</th>
-                                            <th className={`${St.Header_LN} whitespace-nowrap px-4 py-2`}>Lastname</th>
-                                            <th className={`${St.Header_Age} whitespace-nowrap px-4 py-2`}>Age</th>
-                                            <th className={`${St.Header_GD} whitespace-nowrap px-4 py-2`}>Gender</th>
-                                            <th className={`${St.Header_HAdress} whitespace-nowrap px-4 py-2`}>Home Address</th>
-                                            <th className={`${St.Header_Lat} whitespace-nowrap px-4 py-2`}>Latitude</th>
-                                            <th className={`${St.Header_Lng} whitespace-nowrap px-4 py-2`}>Longitude</th>
-                                            <th className={`${St.Header_Status} whitespace-nowrap px-4 py-2`}>Status</th>
-                                            <th className="whitespace-nowrap px-4 py-2 text-gray-900">Action</th>
-                                        </tr>
-                                    </thead>
-
-                                    <tbody className={`${St.text_Student} divide-y divide-gray-200`}>
-                                        {Students.map((student) => (
-                                            <tr key={student.id}>
-                                                <th className="sticky inset-y-0 start-0 bg-white px-4 py-2">
-                                                    <label htmlFor="SelectAll" className="sr-only">Select All</label>
-
-                                                    <input type="checkbox" id="SelectAll" className="size-5 mt-1.5 rounded border-gray-300" checked={selectedRows.includes(student.id)} onChange={() => handleRowSelect(student.id)} />
-                                                </th>
-                                                <td className="whitespace-nowrap px-4 py-2">{student.first_name} </td>
-                                                <td className="whitespace-nowrap px-4 py-2">{student.last_name}</td>
-                                                <td className={`${St.detail_Age} whitespace-nowrap px-4 py-2`}>{student.age}</td>
-                                                <td className="whitespace-nowrap px-4 py-2">{student.gender}</td>
-                                                <td className="whitespace-nowrap px-4 py-2">{student.address}</td>
-                                                <td className={`${St.detail_Lat} whitespace-nowrap px-4 py-2`}>{student.latitude}</td>
-                                                <td className={`${St.detail_Lng} whitespace-nowrap px-4 py-2`}>{student.longitude}</td>
-                                                <td className={`${St.detail_status} whitespace-nowrap px-4 py-2`}>{student.status}</td>
-                                                <td className="whitespace-nowrap px-4 py-2">
+                                            <td className="whitespace-nowrap px-4 py-2">{student.first_name} </td>
+                                            <td className="whitespace-nowrap px-4 py-2">{student.last_name}</td>
+                                            <td className={`${St.detail_Age} whitespace-nowrap px-4 py-2`}>{student.age}</td>
+                                            <td className="whitespace-nowrap px-4 py-2">{student.gender}</td>
+                                            <td className="whitespace-nowrap px-4 py-2">{student.address}</td>
+                                            <td className={`${St.detail_Lat} whitespace-nowrap px-4 py-2`}>{student.latitude}</td>
+                                            <td className={`${St.detail_Lng} whitespace-nowrap px-4 py-2`}>{student.longitude}</td>
+                                            <td className={`${St.detail_status} whitespace-nowrap px-4 py-2`}>{student.status}</td>
+                                            {/* <td className="whitespace-nowrap px-4 py-2">
                                                     <div className="flex space-x-3 ml-5">
                                                         <button onClick={toggleEditPage}>
                                                             <svg
@@ -334,80 +309,83 @@ export default function Sidebar({ selectedMenu }) {
                                                             </svg>
                                                         </button>
                                                     </div>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+                                                </td> */}
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
 
-                        {/* button page change */}
-                        <ol className="flex justify-end gap-1 text-xs font-medium mt-10">
-                            <div className="sm:flex sm:flex-1 sm:items-center sm:justify-between">
-                                <div>
-                                    <p className={`${St.text_showing} px-10`}>
-                                        Showing
-                                        <span className="px-2">{currentPage}</span>
-                                        to
-                                        <span className="px-2">{totalPages}</span>
-                                    </p>
+                            {/* button page change */}
+                            <ol className="flex justify-end gap-1 text-xs font-medium mt-10">
+                                <div className="sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                                    <div>
+                                        <p className={`${St.text_showing} px-10`}>
+                                            Showing
+                                            <span className="px-2">{currentPage}</span>
+                                            to
+                                            <span className="px-2">{totalPages}</span>
+                                        </p>
+                                    </div>
                                 </div>
-                            </div>
-                            <li>
-                                <button
-                                    onClick={() => handlePageChange(currentPage - 1)}
-                                    className={`inline-flex items-center justify-center rounded border border-gray-100 bg-white text-gray-900 ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                    disabled={currentPage === 1}
-                                >
-                                    <span className="sr-only">Prev Page</span>
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        className="size-7"
-                                        viewBox="0 0 20 20"
-                                        fill="currentColor"
-                                    >
-                                        <path
-                                            fillRule="evenodd"
-                                            d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
-                                            clipRule="evenodd"
-                                        />
-                                    </svg>
-                                </button>
-                            </li>
-                            {Array.from({ length: totalPages }, (_, index) => (
-                                <li key={index + 1} className="block size-8 rounded border-blue-600 bg-blue-600 text-center leading-8 text-white">
+                                {/* ปุ่ม Prev */}
+                                <li>
                                     <button
-                                        onClick={() => handlePageChange(index + 1)}
-                                        className={`block size-8 rounded border ${currentPage === index + 1 ? 'bg-blue-600 text-white' : 'border-gray-100 bg-white text-gray-900'}`}
+                                        onClick={() => setCurrentPage(currentPage - 1)}
+                                        className={`inline-flex items-center justify-center rounded border border-gray-100 bg-white text-gray-900 ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        disabled={currentPage === 1}
                                     >
-                                        {index + 1}
+                                        <span className="sr-only">Prev Page</span>
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            className="size-7"
+                                            viewBox="0 0 20 20"
+                                            fill="currentColor"
+                                        >
+                                            <path
+                                                fillRule="evenodd"
+                                                d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                                                clipRule="evenodd"
+                                            />
+                                        </svg>
                                     </button>
                                 </li>
-                            ))}
 
-                            <li>
-                                <button
-                                    onClick={() => handlePageChange(currentPage + 1)}
-                                    className={`inline-flex items-center justify-center rounded border border-gray-100 bg-white text-gray-900 ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                    disabled={currentPage === totalPages}
-                                >
-                                    <span className="sr-only">Next Page</span>
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        className="size-7"
-                                        viewBox="0 0 20 20"
-                                        fill="currentColor"
+                                {/* ปุ่มตัวเลข */}
+                                {Array.from({ length: endPage - startPage + 1 }, (_, index) => startPage + index).map((page) => (
+                                    <li key={page} className="block size-8 rounded border-blue-600 bg-blue-600 text-center leading-8 text-white">
+                                        <button
+                                            onClick={() => setCurrentPage(page)}
+                                            className={`block size-8 rounded border ${currentPage === page ? 'bg-blue-600 text-white' : 'border-gray-100 bg-white text-gray-900'}`}
+                                        >
+                                            {page}
+                                        </button>
+                                    </li>
+                                ))}
+
+                                {/* ปุ่ม Next */}
+                                <li>
+                                    <button
+                                        onClick={() => setCurrentPage(currentPage + 1)}
+                                        className={`inline-flex items-center justify-center rounded border border-gray-100 bg-white text-gray-900 ${currentPage >= totalPages ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        disabled={currentPage >= totalPages}
                                     >
-                                        <path
-                                            fillRule="evenodd"
-                                            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                                            clipRule="evenodd"
-                                        />
-                                    </svg>
-                                </button>
-                            </li>
-                        </ol>
+                                        <span className="sr-only">Next Page</span>
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            className="size-7"
+                                            viewBox="0 0 20 20"
+                                            fill="currentColor"
+                                        >
+                                            <path
+                                                fillRule="evenodd"
+                                                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                                                clipRule="evenodd"
+                                            />
+                                        </svg>
+                                    </button>
+                                </li>
+                            </ol>
+                        </div>
                     </div>
                 );
         }
@@ -661,7 +639,7 @@ export default function Sidebar({ selectedMenu }) {
                             </Link>
                             <div className="py-10 px-24">
                                 <h2 className={style.title}>
-                                   Edit
+                                    Edit
                                 </h2>
                                 <div className={style.p}>
                                     Edit the student's details, including name and home address
